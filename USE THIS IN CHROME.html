@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Milk Pocky - The Super Snack</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(180deg, #b8d4f1 0%, #a8c8e8 100%);
+            font-family: Verdana, Arial, sans-serif;
+            font-size: 11px;
+            color: #000080;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0;
+        }
+
+        .header {
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 130"><defs><pattern id="bubbles" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="8" fill="rgba(255,255,255,0.3)"/><circle cx="35" cy="30" r="5" fill="rgba(255,255,255,0.2)"/><circle cx="25" cy="40" r="3" fill="rgba(255,255,255,0.25)"/></pattern></defs><rect width="400" height="130" fill="%230047ab"/><rect width="400" height="130" fill="url(%23bubbles)"/></svg>') center/cover;
+            border: 3px solid #0047ab;
+            padding: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            color: white;
+            text-shadow: 3px 3px 0px rgba(0,0,0,0.3);
+            font-weight: bold;
+            letter-spacing: 8px;
+            margin: 0;
+            font-family: Arial Black, sans-serif;
+        }
+
+        .header h2 {
+            font-size: 28px;
+            color: white;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.3);
+            font-weight: bold;
+            margin-top: -5px;
+            font-family: Arial Black, sans-serif;
+        }
+
+        .section {
+            background: #c8d8f0;
+            border: 2px solid #0047ab;
+            margin-top: 5px;
+        }
+
+        .section-title {
+            background: #4169e1;
+            color: white;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-bottom: 2px solid #0047ab;
+        }
+
+        .section-content {
+            padding: 10px;
+            line-height: 1.6;
+        }
+
+        .nav-section {
+            background: #4169e1;
+            border: 2px solid #0047ab;
+            margin-top: 5px;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .nav-section a {
+            color: white;
+            text-decoration: none;
+            margin: 0 5px;
+            font-weight: bold;
+        }
+
+        .nav-section a:hover {
+            text-decoration: underline;
+        }
+
+        .nav-section span {
+            color: white;
+            margin: 0 3px;
+        }
+
+        a {
+            color: #0000ff;
+            text-decoration: underline;
+        }
+
+        a:hover {
+            color: #ff1493;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .update-entry {
+            margin-bottom: 15px;
+            border-bottom: 1px dotted #4169e1;
+            padding-bottom: 10px;
+        }
+
+        .update-entry:last-child {
+            border-bottom: none;
+        }
+
+        .update-date {
+            font-weight: bold;
+            color: #0047ab;
+        }
+
+        .update-image {
+            max-width: 100%;
+            margin: 10px 0;
+            border: 2px solid #0047ab;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 3px;
+            margin: 3px 0;
+            border: 1px solid #0047ab;
+            font-family: Verdana, Arial, sans-serif;
+            font-size: 11px;
+        }
+
+        button {
+            background: #4169e1;
+            color: white;
+            border: 2px solid #0047ab;
+            padding: 5px 15px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        button:hover {
+            background: #0047ab;
+        }
+
+        .admin-panel {
+            background: #ffe4e1;
+            border: 2px dashed #ff69b4;
+            padding: 10px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .admin-panel.unlocked {
+            display: block;
+        }
+
+        .admin-title {
+            background: #ff69b4;
+            color: white;
+            padding: 4px;
+            margin: -10px -10px 10px -10px;
+            font-weight: bold;
+        }
+
+        .login-panel {
+            background: #ffe4e1;
+            border: 2px solid #ff69b4;
+            padding: 15px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .login-panel input {
+            width: 200px;
+            padding: 5px;
+            margin: 5px;
+        }
+
+        .admin-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #ff69b4;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+
+        .admin-controls button {
+            background: white;
+            color: #ff69b4;
+            margin: 5px;
+            border: none;
+            padding: 8px 12px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            border: 3px solid #0047ab;
+            margin: 20px;
+        }
+
+        .modal-content h3 {
+            color: #0047ab;
+            margin-bottom: 15px;
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 10px 0;
+            border-bottom: 2px solid #0047ab;
+        }
+
+        .edit-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f0f8ff;
+            border: 1px solid #0047ab;
+            border-radius: 5px;
+        }
+
+        .edit-section h4 {
+            color: #ff69b4;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .edit-field {
+            margin-bottom: 10px;
+        }
+
+        .edit-field label {
+            display: block;
+            font-weight: bold;
+            color: #0047ab;
+            margin-bottom: 3px;
+            font-size: 10px;
+        }
+
+        .file-input-label {
+            background: #4169e1;
+            color: white;
+            padding: 8px 15px;
+            cursor: pointer;
+            display: inline-block;
+            border-radius: 3px;
+            margin-top: 5px;
+        }
+
+        .file-input-label:hover {
+            background: #0047ab;
+        }
+
+        .image-preview {
+            max-width: 200px;
+            margin-top: 10px;
+            border: 2px solid #0047ab;
+        }
+
+        .delete-update {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 3px 8px;
+            cursor: pointer;
+            font-size: 10px;
+            margin-left: 10px;
+        }
+
+        .delete-update:hover {
+            background: #cc0000;
+        }
+
+        .empty-state {
+            color: #999;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .save-all-btn {
+            position: sticky;
+            bottom: 0;
+            background: #ff69b4;
+            color: white;
+            width: 100%;
+            padding: 12px;
+            font-size: 13px;
+            margin-top: 20px;
+        }
+
+        .hint {
+            font-size: 10px;
+            color: #666;
+            font-style: italic;
+            margin-top: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="header-main">Pocky</h1>
+            <h2 id="header-sub">The Super Snack</h2>
+            <div style="position: absolute; top: 10px; left: 10px; color: white; font-size: 24px; font-weight: bold;" id="header-corner">milk</div>
+        </div>
+
+        <!-- Home/Updates Page -->
+        <div id="home" class="page active">
+            <div class="section">
+                <div class="section-title" id="home-title-1">Introduction</div>
+                <div class="section-content" id="intro-text">
+                    <div class="empty-state">Click "Edit All Content" to add your introduction text here!</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title" id="home-title-2">Updates</div>
+                <div class="section-content" id="updates-list">
+                    <div class="empty-state">Login and post your first update!</div>
+                </div>
+            </div>
+
+            <!-- Login Panel -->
+            <div class="login-panel" id="login-panel">
+                <strong>🔒 Admin Login</strong><br><br>
+                <input type="password" id="admin-password" placeholder="Enter password">
+                <button onclick="checkPassword()">Login</button>
+                <div id="login-error" style="color: red; margin-top: 10px;"></div>
+            </div>
+
+            <!-- Admin Panel -->
+            <div class="admin-panel" id="admin-panel">
+                <div class="admin-title">✏️ Admin: Add New Update</div>
+                <input type="text" id="update-date" placeholder="Date (e.g., 2/15/26)">
+                <textarea id="update-text" rows="3" placeholder="Update text..."></textarea>
+                
+                <label class="file-input-label" for="update-image">
+                    📷 Add Image (Optional)
+                </label>
+                <input type="file" id="update-image" accept="image/*" style="display: none;" onchange="previewImage(this)">
+                <div id="image-preview-container"></div>
+                
+                <button onclick="addUpdate()">Post Update</button>
+                <button onclick="logout()" style="background: #999;">Logout</button>
+            </div>
+        </div>
+
+        <!-- About Page -->
+        <div id="about" class="page">
+            <div class="section">
+                <div class="section-title" id="about-title-1">About</div>
+                <div class="section-content" id="about-text-1">
+                    <div class="empty-state">Click "Edit All Content" to add content here!</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title" id="about-title-2">Section 2</div>
+                <div class="section-content" id="about-text-2">
+                    <div class="empty-state">Click "Edit All Content" to add content here!</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title" id="about-title-3">Section 3</div>
+                <div class="section-content" id="about-text-3">
+                    <div class="empty-state">Click "Edit All Content" to add content here!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rules Page -->
+        <div id="rules" class="page">
+            <div class="section">
+                <div class="section-title" id="rules-title">Rules</div>
+                <div class="section-content" id="rules-text">
+                    <div class="empty-state">Click "Edit All Content" to add your rules here!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Codes Page -->
+        <div id="codes" class="page">
+            <div class="section">
+                <div class="section-title" id="codes-title">Codes</div>
+                <div class="section-content" id="codes-text">
+                    <div class="empty-state">Click "Edit All Content" to add your codes here!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Join Page -->
+        <div id="join" class="page">
+            <div class="section">
+                <div class="section-title" id="join-title">Join</div>
+                <div class="section-content">
+                    <div id="join-intro">
+                        <div class="empty-state">Click "Edit All Content" to add instructions!</div>
+                    </div>
+                    <br>
+                    <form id="join-form" onsubmit="handleJoin(event)">
+                        <label id="label-name">name</label>
+                        <input type="text" name="name" required>
+                        
+                        <label id="label-email">email</label>
+                        <input type="email" name="email" required>
+                        
+                        <label id="label-url">website url</label>
+                        <input type="url" name="url" placeholder="http://" required>
+                        
+                        <label id="label-field1">custom field 1</label>
+                        <input type="text" name="field1" required>
+                        
+                        <label id="label-field2">custom field 2</label>
+                        <input type="text" name="field2" required>
+                        
+                        <label id="label-comments">comments</label>
+                        <textarea name="comments" rows="4"></textarea>
+                        
+                        <button type="submit">Join!</button>
+                    </form>
+                    <br>
+                    <div id="join-message" style="color: #ff1493; font-weight: bold;"></div>
+                    <div id="join-footer">
+                        <div class="empty-state">Click "Edit All Content" to add footer text!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Members Page -->
+        <div id="members" class="page">
+            <div class="section">
+                <div class="section-title" id="members-title">Members</div>
+                <div class="section-content">
+                    <div id="members-list">
+                        <div class="empty-state">Members list will appear here...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Site Info Page -->
+        <div id="site-info" class="page">
+            <div class="section">
+                <div class="section-title" id="site-title-1">Contact</div>
+                <div class="section-content" id="site-text-1">
+                    <div class="empty-state">Click "Edit All Content" to add contact info!</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title" id="site-title-2">Section 2</div>
+                <div class="section-content" id="site-text-2">
+                    <div class="empty-state">Click "Edit All Content" to add content!</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title" id="site-title-3">Section 3</div>
+                <div class="section-content" id="site-text-3">
+                    <div class="empty-state">Click "Edit All Content" to add content!</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title" id="site-title-4">Section 4</div>
+                <div class="section-content" id="site-text-4">
+                    <div class="empty-state">Click "Edit All Content" to add content!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-section">
+            <a href="#" onclick="showPage('about'); return false;" id="nav-about">« about</a>
+            <span>«</span>
+            <a href="#" onclick="showPage('rules'); return false;" id="nav-rules">rules</a>
+            <span>«</span>
+            <a href="#" onclick="showPage('codes'); return false;" id="nav-codes">codes</a>
+            <span>«</span>
+            <a href="#" onclick="showPage('join'); return false;" id="nav-join">join</a>
+            <span>«</span>
+            <a href="#" onclick="showPage('members'); return false;" id="nav-members">members</a>
+            <span>«</span>
+            <a href="#" onclick="showPage('site-info'); return false;" id="nav-site">site</a>
+            <span>«</span>
+            <a href="#" onclick="showPage('home'); return false;" id="nav-home">clear</a>
+        </div>
+    </div>
+
+    <!-- Admin Controls -->
+    <div class="admin-controls" id="admin-controls" style="display: none;">
+        <strong>👑 Admin Mode</strong><br>
+        <button onclick="openEditModal()">Edit All Content</button>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal" id="edit-modal">
+        <div class="modal-content">
+            <h3>✏️ Edit All Site Content</h3>
+            
+            <!-- HEADER SECTION -->
+            <div class="edit-section">
+                <h4>🎨 HEADER</h4>
+                <div class="edit-field">
+                    <label>Corner Text (top-left)</label>
+                    <input type="text" id="edit-header-corner">
+                    <div class="hint">Example: "milk" or your site name</div>
+                </div>
+                <div class="edit-field">
+                    <label>Main Title (big)</label>
+                    <input type="text" id="edit-header-main">
+                    <div class="hint">Example: "Pocky" or your main heading</div>
+                </div>
+                <div class="edit-field">
+                    <label>Subtitle (under main title)</label>
+                    <input type="text" id="edit-header-sub">
+                    <div class="hint">Example: "The Super Snack"</div>
+                </div>
+            </div>
+
+            <!-- HOME PAGE -->
+            <div class="edit-section">
+                <h4>🏠 HOME PAGE</h4>
+                <div class="edit-field">
+                    <label>Section 1 Title</label>
+                    <input type="text" id="edit-home-title-1">
+                </div>
+                <div class="edit-field">
+                    <label>Introduction Text</label>
+                    <textarea id="edit-intro-text" rows="5"></textarea>
+                </div>
+                <div class="edit-field">
+                    <label>Section 2 Title</label>
+                    <input type="text" id="edit-home-title-2">
+                </div>
+            </div>
+
+            <!-- ABOUT PAGE -->
+            <div class="edit-section">
+                <h4>📖 ABOUT PAGE</h4>
+                <div class="edit-field">
+                    <label>Section 1 Title</label>
+                    <input type="text" id="edit-about-title-1">
+                </div>
+                <div class="edit-field">
+                    <label>Section 1 Content</label>
+                    <textarea id="edit-about-text-1" rows="4"></textarea>
+                </div>
+                <div class="edit-field">
+                    <label>Section 2 Title</label>
+                    <input type="text" id="edit-about-title-2">
+                </div>
+                <div class="edit-field">
+                    <label>Section 2 Content</label>
+                    <textarea id="edit-about-text-2" rows="4"></textarea>
+                </div>
+                <div class="edit-field">
+                    <label>Section 3 Title</label>
+                    <input type="text" id="edit-about-title-3">
+                </div>
+                <div class="edit-field">
+                    <label>Section 3 Content</label>
+                    <textarea id="edit-about-text-3" rows="4"></textarea>
+                </div>
+            </div>
+
+            <!-- RULES PAGE -->
+            <div class="edit-section">
+                <h4>📋 RULES PAGE</h4>
+                <div class="edit-field">
+                    <label>Section Title</label>
+                    <input type="text" id="edit-rules-title">
+                </div>
+                <div class="edit-field">
+                    <label>Rules Content</label>
+                    <textarea id="edit-rules-text" rows="8"></textarea>
+                    <div class="hint">Use &lt;br&gt;&lt;br&gt; for line breaks, &lt;strong&gt;text&lt;/strong&gt; for bold</div>
+                </div>
+            </div>
+
+            <!-- CODES PAGE -->
+            <div class="edit-section">
+                <h4>💻 CODES PAGE</h4>
+                <div class="edit-field">
+                    <label>Section Title</label>
+                    <input type="text" id="edit-codes-title">
+                </div>
+                <div class="edit-field">
+                    <label>Codes Content</label>
+                    <textarea id="edit-codes-text" rows="6"></textarea>
+                </div>
+            </div>
+
+            <!-- JOIN PAGE -->
+            <div class="edit-section">
+                <h4>✉️ JOIN PAGE</h4>
+                <div class="edit-field">
+                    <label>Section Title</label>
+                    <input type="text" id="edit-join-title">
+                </div>
+                <div class="edit-field">
+                    <label>Instructions (above form)</label>
+                    <textarea id="edit-join-intro" rows="3"></textarea>
+                </div>
+                <div class="edit-field">
+                    <label>Form Field 1 Label</label>
+                    <input type="text" id="edit-label-name">
+                </div>
+                <div class="edit-field">
+                    <label>Form Field 2 Label</label>
+                    <input type="text" id="edit-label-email">
+                </div>
+                <div class="edit-field">
+                    <label>Form Field 3 Label</label>
+                    <input type="text" id="edit-label-url">
+                </div>
+                <div class="edit-field">
+                    <label>Form Field 4 Label (Custom)</label>
+                    <input type="text" id="edit-label-field1">
+                </div>
+                <div class="edit-field">
+                    <label>Form Field 5 Label (Custom)</label>
+                    <input type="text" id="edit-label-field2">
+                </div>
+                <div class="edit-field">
+                    <label>Form Field 6 Label (Comments)</label>
+                    <input type="text" id="edit-label-comments">
+                </div>
+                <div class="edit-field">
+                    <label>Footer Text (below form)</label>
+                    <textarea id="edit-join-footer" rows="2"></textarea>
+                </div>
+            </div>
+
+            <!-- MEMBERS PAGE -->
+            <div class="edit-section">
+                <h4>👥 MEMBERS PAGE</h4>
+                <div class="edit-field">
+                    <label>Section Title</label>
+                    <input type="text" id="edit-members-title">
+                </div>
+            </div>
+
+            <!-- SITE INFO PAGE -->
+            <div class="edit-section">
+                <h4>ℹ️ SITE INFO PAGE</h4>
+                <div class="edit-field">
+                    <label>Section 1 Title</label>
+                    <input type="text" id="edit-site-title-1">
+                </div>
+                <div class="edit-field">
+                    <label>Section 1 Content</label>
+                    <textarea id="edit-site-text-1" rows="3"></textarea>
+                </div>
+                <div class="edit-field">
+                    <label>Section 2 Title</label>
+                    <input type="text" id="edit-site-title-2">
+                </div>
+                <div class="edit-field">
+                    <label>Section 2 Content</label>
+                    <textarea id="edit-site-text-2" rows="3"></textarea>
+                </div>
+                <div class="edit-field">
+                    <label>Section 3 Title</label>
+                    <input type="text" id="edit-site-title-3">
+                </div>
+                <div class="edit-field">
+                    <label>Section 3 Content</label>
+                    <textarea id="edit-site-text-3" rows="3"></textarea>
+                </div>
+                <div class="edit-field">
+                    <label>Section 4 Title</label>
+                    <input type="text" id="edit-site-title-4">
+                </div>
+                <div class="edit-field">
+                    <label>Section 4 Content</label>
+                    <textarea id="edit-site-text-4" rows="3"></textarea>
+                </div>
+            </div>
+
+            <!-- NAVIGATION -->
+            <div class="edit-section">
+                <h4>🧭 NAVIGATION</h4>
+                <div class="edit-field">
+                    <label>Link 1 Text</label>
+                    <input type="text" id="edit-nav-about">
+                </div>
+                <div class="edit-field">
+                    <label>Link 2 Text</label>
+                    <input type="text" id="edit-nav-rules">
+                </div>
+                <div class="edit-field">
+                    <label>Link 3 Text</label>
+                    <input type="text" id="edit-nav-codes">
+                </div>
+                <div class="edit-field">
+                    <label>Link 4 Text</label>
+                    <input type="text" id="edit-nav-join">
+                </div>
+                <div class="edit-field">
+                    <label>Link 5 Text</label>
+                    <input type="text" id="edit-nav-members">
+                </div>
+                <div class="edit-field">
+                    <label>Link 6 Text</label>
+                    <input type="text" id="edit-nav-site">
+                </div>
+                <div class="edit-field">
+                    <label>Link 7 Text (Home)</label>
+                    <input type="text" id="edit-nav-home">
+                </div>
+            </div>
+
+            <button class="save-all-btn" onclick="saveAllContent()">💾 SAVE ALL CHANGES</button>
+            <button onclick="closeEditModal()" style="background: #999; width: 100%; margin-top: 5px;">Close Without Saving</button>
+        </div>
+    </div>
+
+    <script>
+        // Password Configuration - CHANGE THIS!
+        const ADMIN_PASSWORD = 'pocky2024';  // ⚠️ CHANGE THIS PASSWORD!
+
+        let isLoggedIn = false;
+        let currentImageData = null;
+
+        function showPage(pageId) {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function checkPassword() {
+            const password = document.getElementById('admin-password').value;
+            const errorDiv = document.getElementById('login-error');
+            
+            if (password === ADMIN_PASSWORD) {
+                isLoggedIn = true;
+                document.getElementById('login-panel').style.display = 'none';
+                document.getElementById('admin-panel').classList.add('unlocked');
+                document.getElementById('admin-controls').style.display = 'block';
+                errorDiv.textContent = '';
+                sessionStorage.setItem('adminLoggedIn', 'true');
+            } else {
+                errorDiv.textContent = '❌ Incorrect password!';
+                document.getElementById('admin-password').value = '';
+            }
+        }
+
+        function logout() {
+            isLoggedIn = false;
+            document.getElementById('login-panel').style.display = 'block';
+            document.getElementById('admin-panel').classList.remove('unlocked');
+            document.getElementById('admin-controls').style.display = 'none';
+            document.getElementById('admin-password').value = '';
+            sessionStorage.removeItem('adminLoggedIn');
+        }
+
+        function previewImage(input) {
+            const container = document.getElementById('image-preview-container');
+            container.innerHTML = '';
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentImageData = e.target.result;
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'image-preview';
+                    container.appendChild(img);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function addUpdate() {
+            if (!isLoggedIn) {
+                alert('Please login first!');
+                return;
+            }
+
+            const date = document.getElementById('update-date').value;
+            const text = document.getElementById('update-text').value;
+            
+            if (!date || !text) {
+                alert('Please fill in both date and update text!');
+                return;
+            }
+            
+            const updatesList = document.getElementById('updates-list');
+            
+            // Remove empty state if it exists
+            const emptyState = updatesList.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+            
+            const newUpdate = document.createElement('div');
+            newUpdate.className = 'update-entry';
+            
+            let imageHTML = '';
+            if (currentImageData) {
+                imageHTML = `<img src="${currentImageData}" class="update-image" alt="Update image">`;
+            }
+            
+            newUpdate.innerHTML = `
+                <span class="update-date">${date}</span>
+                <button class="delete-update" onclick="deleteUpdate(this)">Delete</button>
+                <br>
+                ${text}
+                ${imageHTML}
+            `;
+            
+            updatesList.insertBefore(newUpdate, updatesList.firstChild);
+            
+            document.getElementById('update-date').value = '';
+            document.getElementById('update-text').value = '';
+            document.getElementById('update-image').value = '';
+            document.getElementById('image-preview-container').innerHTML = '';
+            currentImageData = null;
+            
+            saveUpdates();
+            alert('✅ Update posted successfully!');
+        }
+
+        function deleteUpdate(button) {
+            if (confirm('Are you sure you want to delete this update?')) {
+                button.closest('.update-entry').remove();
+                
+                // Add empty state back if no updates
+                const updatesList = document.getElementById('updates-list');
+                if (updatesList.children.length === 0) {
+                    updatesList.innerHTML = '<div class="empty-state">Login and post your first update!</div>';
+                }
+                
+                saveUpdates();
+            }
+        }
+
+        function saveUpdates() {
+            const updatesList = document.getElementById('updates-list');
+            localStorage.setItem('pockyUpdates', updatesList.innerHTML);
+        }
+
+        function loadUpdates() {
+            const saved = localStorage.getItem('pockyUpdates');
+            if (saved) {
+                document.getElementById('updates-list').innerHTML = saved;
+            }
+        }
+
+        function openEditModal() {
+            // Load all current content into edit fields
+            const fields = [
+                'header-corner', 'header-main', 'header-sub',
+                'home-title-1', 'intro-text', 'home-title-2',
+                'about-title-1', 'about-text-1', 'about-title-2', 'about-text-2', 'about-title-3', 'about-text-3',
+                'rules-title', 'rules-text',
+                'codes-title', 'codes-text',
+                'join-title', 'join-intro', 'join-footer',
+                'label-name', 'label-email', 'label-url', 'label-field1', 'label-field2', 'label-comments',
+                'members-title',
+                'site-title-1', 'site-text-1', 'site-title-2', 'site-text-2', 
+                'site-title-3', 'site-text-3', 'site-title-4', 'site-text-4',
+                'nav-about', 'nav-rules', 'nav-codes', 'nav-join', 'nav-members', 'nav-site', 'nav-home'
+            ];
+            
+            fields.forEach(field => {
+                const element = document.getElementById(field);
+                const editElement = document.getElementById('edit-' + field);
+                if (element && editElement) {
+                    editElement.value = element.textContent.trim();
+                }
+            });
+            
+            document.getElementById('edit-modal').classList.add('active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.remove('active');
+        }
+
+        function saveAllContent() {
+            // Save all fields
+            const fields = [
+                'header-corner', 'header-main', 'header-sub',
+                'home-title-1', 'intro-text', 'home-title-2',
+                'about-title-1', 'about-text-1', 'about-title-2', 'about-text-2', 'about-title-3', 'about-text-3',
+                'rules-title', 'rules-text',
+                'codes-title', 'codes-text',
+                'join-title', 'join-intro', 'join-footer',
+                'label-name', 'label-email', 'label-url', 'label-field1', 'label-field2', 'label-comments',
+                'members-title',
+                'site-title-1', 'site-text-1', 'site-title-2', 'site-text-2',
+                'site-title-3', 'site-text-3', 'site-title-4', 'site-text-4',
+                'nav-about', 'nav-rules', 'nav-codes', 'nav-join', 'nav-members', 'nav-site', 'nav-home'
+            ];
+            
+            fields.forEach(field => {
+                const editElement = document.getElementById('edit-' + field);
+                const targetElement = document.getElementById(field);
+                if (editElement && targetElement) {
+                    const newValue = editElement.value;
+                    targetElement.innerHTML = newValue.replace(/\n/g, '<br>');
+                    localStorage.setItem('pocky_' + field, newValue);
+                }
+            });
+            
+            alert('✅ All changes saved!');
+            closeEditModal();
+        }
+
+        function loadAllContent() {
+            const fields = [
+                'header-corner', 'header-main', 'header-sub',
+                'home-title-1', 'intro-text', 'home-title-2',
+                'about-title-1', 'about-text-1', 'about-title-2', 'about-text-2', 'about-title-3', 'about-text-3',
+                'rules-title', 'rules-text',
+                'codes-title', 'codes-text',
+                'join-title', 'join-intro', 'join-footer',
+                'label-name', 'label-email', 'label-url', 'label-field1', 'label-field2', 'label-comments',
+                'members-title',
+                'site-title-1', 'site-text-1', 'site-title-2', 'site-text-2',
+                'site-title-3', 'site-text-3', 'site-title-4', 'site-text-4',
+                'nav-about', 'nav-rules', 'nav-codes', 'nav-join', 'nav-members', 'nav-site', 'nav-home'
+            ];
+            
+            fields.forEach(field => {
+                const saved = localStorage.getItem('pocky_' + field);
+                if (saved) {
+                    const element = document.getElementById(field);
+                    if (element) {
+                        element.innerHTML = saved.replace(/\n/g, '<br>');
+                    }
+                }
+            });
+        }
+
+        function handleJoin(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData);
+            
+            console.log('Join submission:', data);
+            
+            document.getElementById('join-message').textContent = 
+                'Thanks for joining! Your submission has been received.';
+            
+            event.target.reset();
+            
+            setTimeout(() => {
+                document.getElementById('join-message').textContent = '';
+            }, 5000);
+        }
+
+        // Initialize
+        window.onload = function() {
+            loadUpdates();
+            loadAllContent();
+            
+            if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+                isLoggedIn = true;
+                document.getElementById('login-panel').style.display = 'none';
+                document.getElementById('admin-panel').classList.add('unlocked');
+                document.getElementById('admin-controls').style.display = 'block';
+            }
+        };
+
+        document.getElementById('edit-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                if (confirm('Close without saving changes?')) {
+                    closeEditModal();
+                }
+            }
+        });
+
+        document.getElementById('admin-password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+    </script>
+</body>
+</html>
