@@ -1,4 +1,4 @@
-
+﻿
 
 <!DOCTYPE html>
 <!-- saved from url=(0073)file:///C:/Users/carol/AppData/Local/Temp/pocky-blank-template%20(3).html -->
@@ -391,7 +391,7 @@
 
             <!-- Login Panel -->
             <div class="login-panel" id="login-panel">
-                <strong>🔒 Admin Login</strong><br><br>
+                <strong>ðŸ”’ Admin Login</strong><br><br>
                 <input type="password" id="admin-password" placeholder="Enter password">
                 <button onclick="checkPassword()">Login</button>
                 <div id="login-error" style="color: red; margin-top: 10px;"></div>
@@ -399,12 +399,12 @@
 
             <!-- Admin Panel -->
             <div class="admin-panel" id="admin-panel">
-                <div class="admin-title">✏️ Admin: Add New Update</div>
+                <div class="admin-title">âœï¸ Admin: Add New Update</div>
                 <input type="text" id="update-date" placeholder="Date (e.g., 2/15/26)">
                 <textarea id="update-text" rows="3" placeholder="Update text..."></textarea>
                 
                 <label class="file-input-label" for="update-image">
-                    📷 Add Image (Optional)
+                    ðŸ“· Add Image (Optional)
                 </label>
                 <input type="file" id="update-image" accept="image/*" style="display: none;" onchange="previewImage(this)">
                 <div id="image-preview-container"></div>
@@ -444,41 +444,53 @@
         <div id="codes" class="page">
             <div class="section">
                 <div class="section-title" id="codes-title">pics of interest (p.o.i)</div>
-                <div class="section-content" id="codes-text">〰im still figuring out how to code this page xx〰</div>
+                <div class="section-content" id="codes-text">ã€°im still figuring out how to code this page xxã€°</div>
             </div>
         </div>
 
-        <!-- Join Page -->
+        <!-- Signup Page -->
         <div id="join" class="page">
             <div class="section">
-                <div class="section-title" id="join-title">Join</div>
+                <div class="section-title" id="join-title">Signup</div>
                 <div class="section-content">
-                    <div id="join-intro">fill out the form to be able to become a member: members get to post photos and updates with me!</div>
+                    <div id="join-intro">create an account to become a member and post updates.</div>
                     <br>
-                    <form id="join-form" onsubmit="handleJoin(event)">
-                        <label id="label-name">name</label>
-                        <input type="text" name="name" required="">
-                        
-                        <label id="label-email">email or number (area code pls!)</label>
-                        <input type="email" name="email" required="">
-                        
-                        <label id="label-url">favorite website?</label>
-                        <input type="url" name="url" placeholder="http://" required="">
-                        
-                        <label id="label-field1">favorite season?</label>
-                        <input type="text" name="field1" required="">
-                        
-                        <label id="label-field2">would you survive the apocalypse</label>
-                        <input type="text" name="field2" required="">
-                        
-                        <label id="label-comments">comments</label>
-                        <textarea name="comments" rows="4"></textarea>
-                        
-                        <button type="submit">Join!</button>
+                    <form id="signup-form">
+                        <label id="label-email">email</label>
+                        <input type="email" id="signup-email" required="">
+
+                        <label id="label-field1">password</label>
+                        <input type="password" id="signup-password" minlength="8" required="">
+
+                        <label id="label-name">username</label>
+                        <input type="text" id="signup-username" required="">
+
+                        <button type="submit">Sign Up</button>
                     </form>
                     <br>
                     <div id="join-message" style="color: #ff1493; font-weight: bold;"></div>
-                    <div id="join-footer">reach out to me @highpitch3dvoices on instagram if this breaks and i don't get back to you..</div>
+                    <div id="join-footer">after signup, go to login and sign in.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Page -->
+        <div id="login" class="page">
+            <div class="section">
+                <div class="section-title">Login</div>
+                <div class="section-content">
+                    <form id="signin-form">
+                        <label>email or username</label>
+                        <input type="text" id="signin-email" required="">
+
+                        <label>password</label>
+                        <input type="password" id="signin-password" required="">
+
+                        <button type="submit">Sign In</button>
+                        <button type="button" id="signout-btn">Sign Out</button>
+                    </form>
+                    <br>
+                    <div id="login-message" style="color: #ff1493; font-weight: bold;"></div>
                 </div>
             </div>
         </div>
@@ -489,7 +501,7 @@
                 <div class="section-title" id="members-title">Members</div>
                 <div class="section-content">
                     <div id="members-list">
-                        <div class="empty-state">Members list will appear here...</div>
+                        <div class="empty-state">Loading members...</div>
                     </div>
                 </div>
             </div>
@@ -499,7 +511,7 @@
         <div id="site-info" class="page">
             <div class="section">
                 <div class="section-title" id="site-title-1">Contact</div>
-                <div class="section-content" id="site-text-1">email - caroline.wilson.hk@gmail.com〰dont call me if you somehow got my number〰</div>
+                <div class="section-content" id="site-text-1">email - caroline.wilson.hk@gmail.comã€°dont call me if you somehow got my numberã€°</div>
             </div>
 
             <div class="section">
@@ -509,7 +521,7 @@
 
             <div class="section">
                 <div class="section-title" id="site-title-3">copyrights</div>
-                <div class="section-content" id="site-text-3">caro's world Main concept and all ideas of this site are © to C.All of the images are creations made by Caroline Wilson and are not allowed to be reproduced without credit. if you want to use my image, email caroline.wilson.hk@gmail.com</div>
+                <div class="section-content" id="site-text-3">caro's world Main concept and all ideas of this site are Â© to C.All of the images are creations made by Caroline Wilson and are not allowed to be reproduced without credit. if you want to use my image, email caroline.wilson.hk@gmail.com</div>
             </div>
 
             <div class="section">
@@ -518,27 +530,37 @@
             </div>
         </div>
 
+        <div class="section" id="session-bar" style="margin-top: 5px; display: none;">
+            <div class="section-title">Session</div>
+            <div class="section-content">
+                <span id="session-user-text">Not logged in.</span>
+                <button type="button" id="session-logout-btn" style="margin-left: 10px;">Logout</button>
+            </div>
+        </div>
+
         <!-- Navigation -->
         <div class="nav-section">
-            <a href="file:///C:/Users/carol/AppData/Local/Temp/pocky-blank-template%20(3).html#" onclick="showPage(&#39;about&#39;); return false;" id="nav-about">« about</a>
-            <span>«</span>
+            <a href="file:///C:/Users/carol/AppData/Local/Temp/pocky-blank-template%20(3).html#" onclick="showPage(&#39;about&#39;); return false;" id="nav-about">Â« about</a>
+            <span>Â«</span>
             <a href="file:///C:/Users/carol/AppData/Local/Temp/pocky-blank-template%20(3).html#" onclick="showPage(&#39;rules&#39;); return false;" id="nav-rules">rules</a>
-            <span>«</span>
+            <span>Â«</span>
             <a href="file:///C:/Users/carol/AppData/Local/Temp/pocky-blank-template%20(3).html#" onclick="showPage(&#39;codes&#39;); return false;" id="nav-codes">pics</a>
-            <span>«</span>
-            <a href="file:///C:/Users/carol/AppData/Local/Temp/pocky-blank-template%20(3).html#" onclick="showPage(&#39;join&#39;); return false;" id="nav-join">join</a>
-            <span>«</span>
+            <span>Â«</span>
+            <a href="file:///C:/Users/carol/AppData/Local/Temp/pocky-blank-template%20(3).html#" onclick="showPage(&#39;join&#39;); return false;" id="nav-join">signup</a>
+            <span>Â«</span>
+            <a href="file:///C:/Users/carol/AppData/Local/Temp/pocky-blank-template%20(3).html#" onclick="showPage(&#39;login&#39;); return false;" id="nav-login">login</a>
+            <span>Â«</span>
             <a href="file:///C:/Users/carol/AppData/Local/Temp/pocky-blank-template%20(3).html#" onclick="showPage(&#39;members&#39;); return false;" id="nav-members">members</a>
-            <span>«</span>
+            <span>Â«</span>
             <a href="file:///C:/Users/carol/AppData/Local/Temp/pocky-blank-template%20(3).html#" onclick="showPage(&#39;site-info&#39;); return false;" id="nav-site">site</a>
-            <span>«</span>
+            <span>Â«</span>
             <a href="file:///C:/Users/carol/AppData/Local/Temp/pocky-blank-template%20(3).html#" onclick="showPage(&#39;home&#39;); return false;" id="nav-home">clear</a>
         </div>
     </div>
 
     <!-- Admin Controls -->
     <div class="admin-controls" id="admin-controls" style="display: none;">
-        <strong>👑 Admin Mode</strong><br>
+        <strong>ðŸ‘‘ Admin Mode</strong><br>
         <button onclick="openEditModal()">Edit All Content</button>
         <button onclick="logout()">Logout</button>
     </div>
@@ -546,11 +568,11 @@
     <!-- Edit Modal -->
     <div class="modal" id="edit-modal">
         <div class="modal-content">
-            <h3>✏️ Edit All Site Content</h3>
+            <h3>âœï¸ Edit All Site Content</h3>
             
             <!-- HEADER SECTION -->
             <div class="edit-section">
-                <h4>🎨 HEADER</h4>
+                <h4>ðŸŽ¨ HEADER</h4>
                 <div class="edit-field">
                     <label>Corner Text (top-left)</label>
                     <input type="text" id="edit-header-corner">
@@ -570,7 +592,7 @@
 
             <!-- HOME PAGE -->
             <div class="edit-section">
-                <h4>🏠 HOME PAGE</h4>
+                <h4>ðŸ  HOME PAGE</h4>
                 <div class="edit-field">
                     <label>Section 1 Title</label>
                     <input type="text" id="edit-home-title-1">
@@ -587,7 +609,7 @@
 
             <!-- ABOUT PAGE -->
             <div class="edit-section">
-                <h4>📖 ABOUT PAGE</h4>
+                <h4>ðŸ“– ABOUT PAGE</h4>
                 <div class="edit-field">
                     <label>Section 1 Title</label>
                     <input type="text" id="edit-about-title-1">
@@ -616,7 +638,7 @@
 
             <!-- RULES PAGE -->
             <div class="edit-section">
-                <h4>📋 RULES PAGE</h4>
+                <h4>ðŸ“‹ RULES PAGE</h4>
                 <div class="edit-field">
                     <label>Section Title</label>
                     <input type="text" id="edit-rules-title">
@@ -630,7 +652,7 @@
 
             <!-- CODES PAGE -->
             <div class="edit-section">
-                <h4>💻 CODES PAGE</h4>
+                <h4>ðŸ’» CODES PAGE</h4>
                 <div class="edit-field">
                     <label>Section Title</label>
                     <input type="text" id="edit-codes-title">
@@ -643,7 +665,7 @@
 
             <!-- JOIN PAGE -->
             <div class="edit-section">
-                <h4>✉️ JOIN PAGE</h4>
+                <h4>âœ‰ï¸ JOIN PAGE</h4>
                 <div class="edit-field">
                     <label>Section Title</label>
                     <input type="text" id="edit-join-title">
@@ -684,7 +706,7 @@
 
             <!-- MEMBERS PAGE -->
             <div class="edit-section">
-                <h4>👥 MEMBERS PAGE</h4>
+                <h4>ðŸ‘¥ MEMBERS PAGE</h4>
                 <div class="edit-field">
                     <label>Section Title</label>
                     <input type="text" id="edit-members-title">
@@ -693,7 +715,7 @@
 
             <!-- SITE INFO PAGE -->
             <div class="edit-section">
-                <h4>ℹ️ SITE INFO PAGE</h4>
+                <h4>â„¹ï¸ SITE INFO PAGE</h4>
                 <div class="edit-field">
                     <label>Section 1 Title</label>
                     <input type="text" id="edit-site-title-1">
@@ -730,7 +752,7 @@
 
             <!-- NAVIGATION -->
             <div class="edit-section">
-                <h4>🧭 NAVIGATION</h4>
+                <h4>ðŸ§­ NAVIGATION</h4>
                 <div class="edit-field">
                     <label>Link 1 Text</label>
                     <input type="text" id="edit-nav-about">
@@ -761,14 +783,14 @@
                 </div>
             </div>
 
-            <button class="save-all-btn" onclick="saveAllContent()">💾 SAVE ALL CHANGES</button>
+            <button class="save-all-btn" onclick="saveAllContent()">ðŸ’¾ SAVE ALL CHANGES</button>
             <button onclick="closeEditModal()" style="background: #999; width: 100%; margin-top: 5px;">Close Without Saving</button>
         </div>
     </div>
 
     <script>
         // Password Configuration - CHANGE THIS!
-        const ADMIN_PASSWORD = 'pocky2024';  // ⚠️ CHANGE THIS PASSWORD!
+        const ADMIN_PASSWORD = 'pocky2024';  // âš ï¸ CHANGE THIS PASSWORD!
 
         let isLoggedIn = false;
         let currentImageData = null;
@@ -792,7 +814,7 @@
                 errorDiv.textContent = '';
                 sessionStorage.setItem('adminLoggedIn', 'true');
             } else {
-                errorDiv.textContent = '❌ Incorrect password!';
+                errorDiv.textContent = 'âŒ Incorrect password!';
                 document.getElementById('admin-password').value = '';
             }
         }
@@ -870,7 +892,7 @@
             currentImageData = null;
             
             saveUpdates();
-            alert('✅ Update posted successfully!');
+            alert('âœ… Update posted successfully!');
         }
 
         function deleteUpdate(button) {
@@ -956,7 +978,7 @@
                 }
             });
             
-            alert('✅ All changes saved!');
+            alert('âœ… All changes saved!');
             closeEditModal();
         }
 
@@ -1032,4 +1054,6 @@
         });
     </script>
 
-</body></html>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-bridge.js"></script></body></html>
+
