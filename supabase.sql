@@ -50,6 +50,15 @@ create policy "posts write own"
 on public.posts for insert
 with check (auth.uid() = user_id);
 
+drop policy if exists "posts delete own or caroline" on public.posts;
+create policy "posts delete own or caroline"
+on public.posts for delete
+using (
+  auth.uid() = user_id
+  or auth.uid() = '65550070-0da6-44b4-8b53-7634aa3509eb'::uuid
+  or lower(coalesce(auth.jwt()->>'email', '')) = 'caroline.wilson.hk@gmail.com'
+);
+
 alter table public.posts drop constraint if exists posts_content_check;
 alter table public.posts add constraint posts_content_check check (char_length(content) between 1 and 1000000);
 
@@ -57,8 +66,8 @@ create index if not exists posts_created_at_idx on public.posts (created_at desc
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values (
-  'post-images',
-  'post-images',
+  'caros-world-bucket',
+  'caros-world-bucket',
   true,
   5242880,
   array['image/png', 'image/jpeg', 'image/webp', 'image/gif']
@@ -69,13 +78,13 @@ set public = excluded.public;
 drop policy if exists "post_images_read" on storage.objects;
 create policy "post_images_read"
 on storage.objects for select
-using (bucket_id = 'post-images');
+using (bucket_id = 'caros-world-bucket');
 
 drop policy if exists "post_images_insert_own_folder" on storage.objects;
 create policy "post_images_insert_own_folder"
 on storage.objects for insert
 with check (
-  bucket_id = 'post-images'
+  bucket_id = 'caros-world-bucket'
   and auth.uid()::text = (storage.foldername(name))[1]
 );
 
@@ -83,11 +92,11 @@ drop policy if exists "post_images_update_own_folder" on storage.objects;
 create policy "post_images_update_own_folder"
 on storage.objects for update
 using (
-  bucket_id = 'post-images'
+  bucket_id = 'caros-world-bucket'
   and auth.uid()::text = (storage.foldername(name))[1]
 )
 with check (
-  bucket_id = 'post-images'
+  bucket_id = 'caros-world-bucket'
   and auth.uid()::text = (storage.foldername(name))[1]
 );
 
@@ -95,6 +104,6 @@ drop policy if exists "post_images_delete_own_folder" on storage.objects;
 create policy "post_images_delete_own_folder"
 on storage.objects for delete
 using (
-  bucket_id = 'post-images'
+  bucket_id = 'caros-world-bucket'
   and auth.uid()::text = (storage.foldername(name))[1]
 );

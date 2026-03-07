@@ -1,10 +1,14 @@
 ﻿(function () {
   const SUPABASE_URL = "https://itedssjogaktidqmwcny.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0ZWRzc2pvZ2FrdGlkcW13Y255Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNjQ5NDYsImV4cCI6MjA4Njk0MDk0Nn0.e4m1Lvzk6I8sr3sYRLCyn7_wfLl0fWEhuhTVVQeLFVc";
-  const STORAGE_BUCKET = "post-images";
+  const STORAGE_BUCKET = "caros-world-bucket";
+  const CAROLINE_USER_ID = "65550070-0da6-44b4-8b53-7634aa3509eb";
+  const CAROLINE_EMAIL = "caroline.wilson.hk@gmail.com";
 
   let client = null;
   let sessionUser = null;
+  let lastProfileError = "";
+  let hasLoginEmailColumn = true;
 
   function htmlEscape(value) {
     return String(value)
@@ -26,6 +30,17 @@
     return normalized.length >= 3 ? normalized : `user_${Date.now()}`;
   }
 
+  function isCarolineUser() {
+    if (!sessionUser) return false;
+    const email = String(sessionUser.email || "").toLowerCase();
+    return sessionUser.id === CAROLINE_USER_ID || email === CAROLINE_EMAIL;
+  }
+
+  function canDeletePost(postUserId) {
+    if (!sessionUser) return false;
+    return sessionUser.id === postUserId || isCarolineUser();
+  }
+
   function uniqueUsernameSeed(base) {
     const clean = (base || "member")
       .trim()
@@ -36,18 +51,66 @@
     return `${clean || "member"}_${suffix}`.slice(0, 24);
   }
 
+  function pendingUsernameKey(email) {
+    return `pending_username_${String(email || "").toLowerCase()}`;
+  }
+
+  function savePendingUsername(email, username) {
+    if (!email || !username) return;
+    localStorage.setItem(pendingUsernameKey(email), username);
+  }
+
+  function getPendingUsername(email) {
+    if (!email) return "";
+    return localStorage.getItem(pendingUsernameKey(email)) || "";
+  }
+
+  function clearPendingUsername(email) {
+    if (!email) return;
+    localStorage.removeItem(pendingUsernameKey(email));
+  }
+
+  function isMissingLoginEmailColumn(error) {
+    const msg = String(error?.message || "").toLowerCase();
+    return msg.includes("login_email") && (msg.includes("could not find") || msg.includes("column"));
+  }
+
+  async function upsertProfileRow(id, username, emailLower) {
+    if (hasLoginEmailColumn) {
+      const firstTry = await client
+        .from("profiles")
+        .upsert({ id, username, login_email: emailLower }, { onConflict: "id" });
+      if (!firstTry.error) return firstTry;
+      if (!isMissingLoginEmailColumn(firstTry.error)) return firstTry;
+      hasLoginEmailColumn = false;
+    }
+
+    return client
+      .from("profiles")
+      .upsert({ id, username }, { onConflict: "id" });
+  }
+
   async function ensureProfile(preferredUsername) {
     if (!sessionUser) return false;
+    lastProfileError = "";
 
-    const { data: existing } = await client
+    const { data: existing, error: existingError } = await client
       .from("profiles")
       .select("id, username")
       .eq("id", sessionUser.id)
       .maybeSingle();
 
+    if (existingError) {
+      lastProfileError = existingError.message || "Could not read profile.";
+      return false;
+    }
+
     if (existing && existing.username) return true;
 
-    const firstChoice = (preferredUsername || usernameFromEmail(sessionUser.email))
+    const resolvedPreferred =
+      preferredUsername || getPendingUsername(sessionUser.email) || usernameFromEmail(sessionUser.email);
+
+    const firstChoice = (resolvedPreferred)
       .trim()
       .replace(/\s+/g, "_")
       .replace(/[^a-zA-Z0-9_]/g, "")
@@ -57,13 +120,16 @@
 
     for (const candidate of attempts) {
       if (!candidate || candidate.length < 3) continue;
-      const { error } = await client
-        .from("profiles")
-        .upsert(
-          { id: sessionUser.id, username: candidate, login_email: String(sessionUser.email || "").toLowerCase() },
-          { onConflict: "id" }
-        );
-      if (!error) return true;
+      const { error } = await upsertProfileRow(
+        sessionUser.id,
+        candidate,
+        String(sessionUser.email || "").toLowerCase()
+      );
+      if (!error) {
+        clearPendingUsername(sessionUser.email);
+        return true;
+      }
+      lastProfileError = error.message || "Could not create profile.";
     }
 
     return false;
@@ -74,9 +140,32 @@
     sessionUser = data.session ? data.session.user : null;
 
     if (sessionUser) {
+      await ensureProfile();
       setMessage("login-message", `Signed in as ${sessionUser.email}`);
     }
+    renderPostComposerState();
+    await renderAccountPanel();
     await renderSessionBar();
+  }
+
+  function renderPostComposerState() {
+    const adminPanel = document.getElementById("admin-panel");
+    if (!adminPanel) return;
+
+    const title = adminPanel.querySelector(".admin-title");
+    const prompt = document.getElementById("post-auth-prompt");
+    const composer = document.getElementById("post-composer-form");
+
+    if (sessionUser) {
+      if (title) title.textContent = "Post Update (Signed-in Members Only)";
+      if (prompt) prompt.style.display = "none";
+      if (composer) composer.style.display = "block";
+      return;
+    }
+
+    if (title) title.textContent = "Login Required to Post";
+    if (prompt) prompt.style.display = "block";
+    if (composer) composer.style.display = "none";
   }
 
   async function renderSessionBar() {
@@ -93,9 +182,27 @@
     }
 
     const username = await getUsername(sessionUser.id);
-    text.textContent = `Logged in as: ${username}`;
+    const displayName = username !== "member" ? username : usernameFromEmail(sessionUser.email);
+    text.textContent = `Logged in as: ${displayName}`;
     bar.style.display = "block";
     logoutBtn.onclick = signOut;
+  }
+
+  async function renderAccountPanel() {
+    const currentEl = document.getElementById("account-current-username");
+    const usernameInput = document.getElementById("account-username");
+    if (!currentEl || !usernameInput) return;
+
+    if (!sessionUser) {
+      currentEl.textContent = "Current username: not logged in";
+      usernameInput.value = "";
+      return;
+    }
+
+    const username = await getUsername(sessionUser.id);
+    const displayName = username !== "member" ? username : usernameFromEmail(sessionUser.email);
+    currentEl.textContent = `Current username: ${displayName}`;
+    usernameInput.value = displayName;
   }
 
   async function loadMembersList() {
@@ -133,21 +240,43 @@
       return;
     }
 
-    const { error } = await client.auth.signUp({ email, password });
+    const { data, error } = await client.auth.signUp({ email, password });
     if (error) {
       setMessage("join-message", error.message);
       return;
     }
 
+    savePendingUsername(email, username);
+
     await refreshSession();
-    const ok = await ensureProfile(username);
-    if (!ok) {
-      setMessage("join-message", "Signup worked, but profile creation failed. Try a different username.");
+
+    // If no active session after signup, ask user to log in (email confirmation may be off or delayed).
+    if (!sessionUser) {
+      const createdEmail = data?.user?.email || email;
+      setMessage(
+        "join-message",
+        `Account created for ${createdEmail}. Please log in now.`
+      );
       return;
     }
-    await loadMembersList();
 
-    setMessage("join-message", "Signup complete. Now use login page to sign in.");
+    const profileOk = await ensureProfile(username);
+    if (!profileOk) {
+      setMessage(
+        "join-message",
+        `Account created, but profile setup failed: ${lastProfileError || "unknown error"}`
+      );
+      return;
+    }
+
+    await loadMembersList();
+    await loadUpdatesFromSupabase();
+
+    setMessage("join-message", "Signup complete. You are signed in.");
+    setMessage("login-message", "Signed in.");
+    if (typeof window.showPage === "function") {
+      window.showPage("home");
+    }
   }
 
   async function signIn(event) {
@@ -174,10 +303,15 @@
     }
 
     await refreshSession();
-    await ensureProfile();
+    const profileOk = await ensureProfile();
+    if (!profileOk) {
+      setMessage("login-message", `Signed in, but profile setup failed: ${lastProfileError || "unknown error"}`);
+    }
     await loadMembersList();
     await loadUpdatesFromSupabase();
-    setMessage("login-message", "Signed in.");
+    if (profileOk) {
+      setMessage("login-message", "Signed in.");
+    }
     if (typeof window.showPage === "function") {
       window.showPage("home");
     }
@@ -191,8 +325,137 @@
     }
     sessionUser = null;
     setMessage("login-message", "Signed out.");
+    setMessage("account-message", "");
     await refreshSession();
     await loadMembersList();
+    await loadUpdatesFromSupabase();
+    if (typeof window.showPage === "function") {
+      window.showPage("home");
+    }
+  }
+
+  async function updateAccount(event) {
+    if (event && typeof event.preventDefault === "function") event.preventDefault();
+    setMessage("account-message", "");
+    const submitBtn = document.getElementById("account-submit-btn");
+    if (submitBtn) submitBtn.disabled = true;
+    setMessage("account-message", "Updating...");
+
+    try {
+      if (!sessionUser) {
+        setMessage("account-message", "Please log in first.");
+        return;
+      }
+
+      const username = (document.getElementById("account-username")?.value || "").trim();
+      const password = document.getElementById("account-password")?.value || "";
+
+      if (!username || !password) {
+        setMessage("account-message", "Fill in username and current password.");
+        return;
+      }
+
+      if (username.length < 3 || username.length > 24) {
+        setMessage("account-message", "Username must be 3-24 characters.");
+        return;
+      }
+
+      const currentUsername = await getUsername(sessionUser.id);
+      if (username === currentUsername) {
+        setMessage("account-message", "That is already your username.");
+        return;
+      }
+
+      const { data: takenBy, error: takenError } = await client
+        .from("profiles")
+        .select("id")
+        .eq("username", username)
+        .maybeSingle();
+
+      if (takenError) {
+        setMessage("account-message", `Could not validate username availability: ${takenError.message}`);
+        return;
+      }
+
+      if (takenBy && takenBy.id !== sessionUser.id) {
+        setMessage("account-message", "That username is already taken.");
+        return;
+      }
+
+      const email = String(sessionUser.email || "").toLowerCase();
+      const { error: authError } = await client.auth.signInWithPassword({ email, password });
+      if (authError) {
+        setMessage("account-message", "Password is incorrect.");
+        return;
+      }
+
+      const { error: updateError } = await upsertProfileRow(sessionUser.id, username, email);
+
+      if (updateError) {
+        if (String(updateError.message || "").toLowerCase().includes("duplicate")) {
+          setMessage("account-message", "That username is already taken.");
+          return;
+        }
+        setMessage("account-message", `Could not update username: ${updateError.message}`);
+        return;
+      }
+
+      const passwordEl = document.getElementById("account-password");
+      if (passwordEl) passwordEl.value = "";
+      setMessage("account-message", "Username updated.");
+      await refreshSession();
+      await loadMembersList();
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  }
+
+  async function updateAccountPassword(event) {
+    if (event && typeof event.preventDefault === "function") event.preventDefault();
+    setMessage("account-password-message", "");
+
+    const submitBtn = document.getElementById("account-password-submit-btn");
+    if (submitBtn) submitBtn.disabled = true;
+    setMessage("account-password-message", "Updating password...");
+
+    try {
+      if (!sessionUser) {
+        setMessage("account-password-message", "Please log in first.");
+        return;
+      }
+
+      const newPassword = document.getElementById("account-new-password")?.value || "";
+      const confirmPassword = document.getElementById("account-confirm-password")?.value || "";
+
+      if (!newPassword || !confirmPassword) {
+        setMessage("account-password-message", "Fill in both password fields.");
+        return;
+      }
+
+      if (newPassword.length < 8) {
+        setMessage("account-password-message", "Password must be at least 8 characters.");
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        setMessage("account-password-message", "Passwords do not match.");
+        return;
+      }
+
+      const { error } = await client.auth.updateUser({ password: newPassword });
+      if (error) {
+        setMessage("account-password-message", `Could not update password: ${error.message}`);
+        return;
+      }
+
+      const newEl = document.getElementById("account-new-password");
+      const confirmEl = document.getElementById("account-confirm-password");
+      if (newEl) newEl.value = "";
+      if (confirmEl) confirmEl.value = "";
+      setMessage("account-password-message", "Password updated.");
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
   }
 
   async function resolveLoginEmail(identifier) {
@@ -206,7 +469,14 @@
       .eq("username", value)
       .maybeSingle();
 
-    if (error || !data || !data.login_email) return null;
+    if (error) {
+      if (isMissingLoginEmailColumn(error)) {
+        hasLoginEmailColumn = false;
+        setMessage("login-message", "Username login is unavailable right now. Please log in with email.");
+      }
+      return null;
+    }
+    if (!data || !data.login_email) return null;
     return String(data.login_email).toLowerCase();
   }
 
@@ -293,13 +563,21 @@
     updatesList.innerHTML = posts
       .map((post) => {
         const parsed = parsePostContent(post.content, post.created_at);
+        const displayName = htmlEscape(nameMap[post.user_id] || parsed.username);
+        const adminBadge = post.user_id === CAROLINE_USER_ID
+          ? ' <span style="display:inline-block;margin-left:6px;font-size:8px;line-height:1;padding:2px 4px;border:1px solid #0a44a3;background:rgba(10,68,163,0.08);letter-spacing:0.4px;vertical-align:baseline;position:relative;top:-1px;">ADMIN</span>'
+          : "";
         const imageSrc = parsed.imageUrl || parsed.imageData || null;
         const imageHtml = imageSrc
           ? `<img src="${imageSrc}" class="update-image" alt="Update image">`
           : "";
+        const deleteHtml = canDeletePost(post.user_id)
+          ? `<button class="delete-update" onclick="deleteSupabasePost('${post.id}','${post.user_id}', this)">Delete</button>`
+          : "";
         return `
           <div class="update-entry" data-id="${post.id}">
-            <span class="update-date">${htmlEscape(parsed.date)} - ${htmlEscape(nameMap[post.user_id] || parsed.username)}</span>
+            <span class="update-date">${htmlEscape(parsed.date)} - ${displayName}${adminBadge}</span>
+            ${deleteHtml}
             <br>
             ${htmlEscape(parsed.text).replace(/\n/g, "<br>")}
             ${imageHtml}
@@ -307,6 +585,79 @@
         `;
       })
       .join("");
+  }
+
+  async function deletePostSupabase(postId, postUserId, buttonEl) {
+    if (!sessionUser) {
+      alert("Please sign in first.");
+      return;
+    }
+    if (!canDeletePost(postUserId)) {
+      alert("You can only delete your own posts.");
+      return;
+    }
+    if (!confirm("Delete this post?")) return;
+
+    const btn = buttonEl || null;
+    const entry = btn ? btn.closest(".update-entry") : null;
+    if (btn) {
+      btn.disabled = true;
+      btn.dataset.originalText = btn.textContent || "Delete";
+      btn.textContent = "Deleting...";
+    }
+    if (entry) entry.style.opacity = "0.6";
+
+    try {
+      // Refresh auth state before destructive action in case token is stale.
+      await refreshSession();
+
+      let result = await client
+        .from("posts")
+        .delete()
+        .eq("id", postId)
+        .select("id");
+
+      if (result.error && String(result.error.message || "").toLowerCase().includes("jwt")) {
+        await refreshSession();
+        result = await client
+          .from("posts")
+          .delete()
+          .eq("id", postId)
+          .select("id");
+      }
+
+      if (result.error) {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = btn.dataset.originalText || "Delete";
+        }
+        if (entry) entry.style.opacity = "1";
+        alert(`Could not delete post: ${result.error.message}`);
+        return;
+      }
+
+      const deletedCount = Array.isArray(result.data) ? result.data.length : 0;
+      if (deletedCount === 0) {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = btn.dataset.originalText || "Delete";
+        }
+        if (entry) entry.style.opacity = "1";
+        alert("Could not delete post: blocked by permissions (RLS) or post not found.");
+        return;
+      }
+
+      if (entry) entry.remove();
+      await loadUpdatesFromSupabase();
+    } catch (error) {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = btn.dataset.originalText || "Delete";
+      }
+      if (entry) entry.style.opacity = "1";
+      const message = String(error?.message || error || "");
+      alert(`Could not delete post: ${message || "Network request failed. Check connection and try again."}`);
+    }
   }
 
   async function addUpdateSupabase() {
@@ -320,16 +671,17 @@
     const imageInput = document.getElementById("update-image");
     const preview = document.getElementById("image-preview-container");
 
-    const date = dateInput ? dateInput.value.trim() : "";
+    const providedDate = dateInput ? dateInput.value.trim() : "";
+    const date = providedDate || new Date().toLocaleDateString();
     const text = textInput ? textInput.value.trim() : "";
-    if (!date || !text) {
-      alert("Please fill in both date and update text!");
+    if (!text) {
+      alert("Please enter update text.");
       return;
     }
 
     const ok = await ensureProfile();
     if (!ok) {
-      alert("Could not create your member profile yet. Please try logging out and back in.");
+      alert(`Could not create your member profile: ${lastProfileError || "unknown error"}`);
       return;
     }
 
@@ -381,9 +733,7 @@
     if (loginPanel) loginPanel.style.display = "none";
     if (adminPanel) adminPanel.style.display = "block";
     if (adminControls) adminControls.style.display = "none";
-
-    const title = adminPanel ? adminPanel.querySelector(".admin-title") : null;
-    if (title) title.textContent = "Post Update (Signed-in Members Only)";
+    renderPostComposerState();
   }
 
   async function initBridge() {
@@ -397,18 +747,26 @@
     client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     window.addUpdate = addUpdateSupabase;
+    window.deleteSupabasePost = deletePostSupabase;
     window.loadUpdates = loadUpdatesFromSupabase;
     window.saveUpdates = function () {};
+    window.updateAccount = updateAccount;
+    window.updateAccountPassword = updateAccountPassword;
+    window.logout = signOut;
 
     disableLegacyAdmin();
 
     const signupForm = document.getElementById("signup-form");
     const signinForm = document.getElementById("signin-form");
     const signoutBtn = document.getElementById("signout-btn");
+    const accountForm = document.getElementById("account-form");
+    const accountPasswordForm = document.getElementById("account-password-form");
 
     if (signupForm) signupForm.addEventListener("submit", signUp);
     if (signinForm) signinForm.addEventListener("submit", signIn);
     if (signoutBtn) signoutBtn.addEventListener("click", signOut);
+    if (accountForm) accountForm.addEventListener("submit", updateAccount);
+    if (accountPasswordForm) accountPasswordForm.addEventListener("submit", updateAccountPassword);
 
     await refreshSession();
     await loadMembersList();
@@ -424,4 +782,3 @@
     initBridge();
   });
 })();
-
