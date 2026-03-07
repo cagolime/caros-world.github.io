@@ -5,7 +5,7 @@
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Milk Pocky - The Super Snack</title>
+    <title>Caros World</title>
     <style>
         * {
             margin: 0;
@@ -318,6 +318,33 @@
             padding: 20px;
         }
 
+        .updates-filter {
+            padding: 4px 0;
+            color: #0a44a3;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .updates-filter button {
+            background: transparent;
+            border: none;
+            color: #0a44a3;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 0;
+            text-transform: lowercase;
+        }
+
+        .updates-filter button.is-active {
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .updates-filter .divider {
+            padding: 0 8px;
+        }
+
         .save-all-btn {
             position: sticky;
             bottom: 0;
@@ -342,7 +369,7 @@
         <div class="header" onclick="showPage('home')" style="cursor: pointer;">
             <h1 id="header-main">World</h1>
             <h2 id="header-sub">where does the machine end?</h2>
-            <div style="position: absolute; top: 10px; left: 10px; color: white; font-size: 24px; font-weight: bold; cursor: pointer;" id="header-corner" onclick="showPage('home')">Caro's</div>
+            <div style="position: absolute; top: 10px; left: 10px; color: white; font-size: 24px; font-weight: bold; cursor: pointer;" id="header-corner" onclick="showPage('home')">Caros</div>
         </div>
 
         <!-- Home/Updates Page -->
@@ -350,6 +377,16 @@
             <div class="section">
                 <div class="section-title" id="home-title-1">Introduction</div>
                 <div class="section-content" id="intro-text">hello, this is Caroline :-) this website was made in the depths of the internet and i doubt you'll find it but who knows? maybe it was meant to be. this is for life updates and a way for me to spill my heart onto the internet for your viewing pleasures. i say as i speak into the void. hello god, its me, Caroline!</div>
+            </div>
+
+            <div class="section">
+                <div class="section-content">
+                    <div class="updates-filter" id="updates-filter">
+                        <button type="button" id="updates-filter-world" class="is-active">the entire world</button>
+                        <span class="divider">vs</span>
+                        <button type="button" id="updates-filter-caros">caros world</button>
+                    </div>
+                </div>
             </div>
 
             <div class="section">
@@ -538,7 +575,7 @@
 
             <div class="section">
                 <div class="section-title" id="site-title-3">copyrights</div>
-                <div class="section-content" id="site-text-3">caro's world Main concept and all ideas of this site are Â© to C.All of the images are creations made by Caroline Wilson and are not allowed to be reproduced without credit. if you want to use my image, email caroline.wilson.hk@gmail.com</div>
+                <div class="section-content" id="site-text-3">Caros World Main concept and all ideas of this site are Â© to C.All of the images are creations made by Caroline Wilson and are not allowed to be reproduced without credit. if you want to use my image, email caroline.wilson.hk@gmail.com</div>
             </div>
 
             <div class="section">
@@ -551,6 +588,7 @@
             <div class="section-title">Session</div>
             <div class="section-content">
                 <span id="session-user-text">Not logged in.</span>
+                <button type="button" id="session-account-btn" style="margin-left: 10px;" onclick="showPage('account')">Account</button>
                 <button type="button" id="session-logout-btn" style="margin-left: 10px;">Logout</button>
             </div>
         </div>

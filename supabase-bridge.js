@@ -9,6 +9,7 @@
   let sessionUser = null;
   let lastProfileError = "";
   let hasLoginEmailColumn = true;
+  let updatesFilter = "world";
 
   function htmlEscape(value) {
     return String(value)
@@ -22,6 +23,20 @@
   function setMessage(id, text) {
     const el = document.getElementById(id);
     if (el) el.textContent = text;
+  }
+
+  function renderUpdatesFilter() {
+    const worldBtn = document.getElementById("updates-filter-world");
+    const carosBtn = document.getElementById("updates-filter-caros");
+    if (!worldBtn || !carosBtn) return;
+    worldBtn.classList.toggle("is-active", updatesFilter === "world");
+    carosBtn.classList.toggle("is-active", updatesFilter === "caros");
+  }
+
+  async function setUpdatesFilter(mode) {
+    updatesFilter = mode === "caros" ? "caros" : "world";
+    renderUpdatesFilter();
+    await loadUpdatesFromSupabase();
   }
 
   function usernameFromEmail(email) {
@@ -588,18 +603,23 @@
       return;
     }
 
-    if (!posts || !posts.length) {
+    const visiblePosts = (posts || []).filter((post) => {
+      if (updatesFilter !== "caros") return true;
+      return post.user_id === CAROLINE_USER_ID;
+    });
+
+    if (!visiblePosts.length) {
       updatesList.innerHTML = '<div class="empty-state">No updates yet.</div>';
       return;
     }
 
-    const userIds = [...new Set(posts.map((p) => p.user_id))];
+    const userIds = [...new Set(visiblePosts.map((p) => p.user_id))];
     const nameMap = {};
     for (const id of userIds) {
       nameMap[id] = await getUsername(id);
     }
 
-    updatesList.innerHTML = posts
+    updatesList.innerHTML = visiblePosts
       .map((post) => {
         const parsed = parsePostContent(post.content, post.created_at);
         const displayName = htmlEscape(nameMap[post.user_id] || parsed.username);
@@ -800,12 +820,17 @@
     const signoutBtn = document.getElementById("signout-btn");
     const accountForm = document.getElementById("account-form");
     const accountPasswordForm = document.getElementById("account-password-form");
+    const worldFilterBtn = document.getElementById("updates-filter-world");
+    const carosFilterBtn = document.getElementById("updates-filter-caros");
 
     if (signupForm) signupForm.addEventListener("submit", signUp);
     if (signinForm) signinForm.addEventListener("submit", signIn);
     if (signoutBtn) signoutBtn.addEventListener("click", signOut);
     if (accountForm) accountForm.addEventListener("submit", updateAccount);
     if (accountPasswordForm) accountPasswordForm.addEventListener("submit", updateAccountPassword);
+    if (worldFilterBtn) worldFilterBtn.addEventListener("click", () => setUpdatesFilter("world"));
+    if (carosFilterBtn) carosFilterBtn.addEventListener("click", () => setUpdatesFilter("caros"));
+    renderUpdatesFilter();
 
     await refreshSession();
     await loadMembersList();
