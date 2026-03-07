@@ -30,6 +30,14 @@
     return normalized.length >= 3 ? normalized : `user_${Date.now()}`;
   }
 
+  function normalizeUsername(value) {
+    return String(value || "")
+      .trim()
+      .replace(/\s+/g, "_")
+      .replace(/[^a-zA-Z0-9_]/g, "")
+      .slice(0, 24);
+  }
+
   function isCarolineUser() {
     if (!sessionUser) return false;
     const email = String(sessionUser.email || "").toLowerCase();
@@ -105,16 +113,45 @@
       return false;
     }
 
-    if (existing && existing.username) return true;
+    if (existing && existing.username) {
+      const preferredClean = normalizeUsername(preferredUsername);
+      const existingName = String(existing.username || "");
+      const fallbackName = usernameFromEmail(sessionUser.email);
+      const shouldReplaceFallback =
+        preferredClean &&
+        preferredClean.length >= 3 &&
+        preferredClean !== existingName &&
+        (existingName === "member" || existingName === fallbackName);
+
+      if (!shouldReplaceFallback) return true;
+
+      const replaceAttempts = [
+        preferredClean,
+        uniqueUsernameSeed(preferredClean),
+        uniqueUsernameSeed(fallbackName)
+      ];
+
+      for (const candidate of replaceAttempts) {
+        if (!candidate || candidate.length < 3) continue;
+        const { error } = await upsertProfileRow(
+          sessionUser.id,
+          candidate,
+          String(sessionUser.email || "").toLowerCase()
+        );
+        if (!error) {
+          clearPendingUsername(sessionUser.email);
+          return true;
+        }
+        lastProfileError = error.message || "Could not update profile username.";
+      }
+
+      return false;
+    }
 
     const resolvedPreferred =
       preferredUsername || getPendingUsername(sessionUser.email) || usernameFromEmail(sessionUser.email);
 
-    const firstChoice = (resolvedPreferred)
-      .trim()
-      .replace(/\s+/g, "_")
-      .replace(/[^a-zA-Z0-9_]/g, "")
-      .slice(0, 24);
+    const firstChoice = normalizeUsername(resolvedPreferred);
 
     const attempts = [firstChoice, uniqueUsernameSeed(firstChoice), uniqueUsernameSeed(usernameFromEmail(sessionUser.email))];
 
@@ -240,13 +277,15 @@
       return;
     }
 
+    // Save before auth call so onAuthStateChange handlers can use it immediately.
+    savePendingUsername(email, username);
+
     const { data, error } = await client.auth.signUp({ email, password });
     if (error) {
+      clearPendingUsername(email);
       setMessage("join-message", error.message);
       return;
     }
-
-    savePendingUsername(email, username);
 
     await refreshSession();
 
