@@ -1,17 +1,14 @@
-﻿# Caro's World
+# Caros World
 
-Current runtime files:
-- `index.html`
-- `supabase-bridge.js`
+```text
 
-Supabase setup file:
-- `supabase.sql`
+ _____ _____ _____ _____ _____    _ _ _ _____ _____ __    ____
+|     |  _  | __  |     |   __|  | | | |     | __  |  |  |    \
+|   --|     |    -|  |  |__   |  | | | |  |  |    -|  |__|  |  |
+|_____|__|__|__|__|_____|_____|  |_____|_____|__|__|_____|____/
 
-## Do we need `supabase.sql`?
-- Not required at runtime in browser.
-- Required for provisioning/reprovisioning database schema, policies, and storage bucket.
-- Recommended to keep in repo.
+```
 
-## Setup
-1. Run `supabase.sql` once in Supabase SQL Editor.
-2. Open `index.html`.
+Site: [https://caros.world](https://caros.world)
+
+Caros World

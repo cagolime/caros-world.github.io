@@ -135,6 +135,121 @@
             border: 2px solid #0047ab;
         }
 
+        .link-preview {
+            display: block;
+            margin: 12px 0 4px 0;
+            padding: 8px;
+            border: 2px solid #0047ab;
+            background: rgba(65, 105, 225, 0.08);
+            color: #001f7a;
+            text-decoration: none;
+        }
+
+        .link-preview:hover {
+            background: rgba(255, 20, 147, 0.08);
+            color: #001f7a;
+        }
+
+        .link-preview-thumb {
+            display: block;
+            width: 100%;
+            max-width: 320px;
+            border: 1px solid #0047ab;
+            margin-bottom: 8px;
+        }
+
+        .link-preview-site {
+            display: block;
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            color: #0047ab;
+            margin-bottom: 3px;
+        }
+
+        .link-preview-title {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .link-preview-url {
+            display: block;
+            font-size: 10px;
+            color: #0047ab;
+            word-break: break-word;
+        }
+
+        .reply-tools {
+            margin-top: 8px;
+        }
+
+        .reply-toggle {
+            padding: 3px 9px;
+            font-size: 10px;
+            margin-right: 6px;
+        }
+
+        .reply-list {
+            position: relative;
+            margin-top: 10px;
+            margin-left: 16px;
+            padding-left: 16px;
+        }
+
+        .reply-list::before {
+            content: "";
+            position: absolute;
+            top: -6px;
+            bottom: 0;
+            left: 0;
+            width: 2px;
+            background: #7ca3d9;
+        }
+
+        .reply-entry {
+            position: relative;
+            margin-top: 8px;
+            padding: 6px 8px;
+            background: rgba(255, 255, 255, 0.28);
+            border: 1px solid #7ca3d9;
+        }
+
+        .reply-entry::before {
+            content: "";
+            position: absolute;
+            top: 12px;
+            left: -17px;
+            width: 17px;
+            height: 2px;
+            background: #7ca3d9;
+        }
+
+        .reply-meta {
+            color: #0047ab;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .reply-form {
+            margin-top: 8px;
+            padding: 8px;
+            background: rgba(65, 105, 225, 0.06);
+            border: 1px dashed #4169e1;
+        }
+
+        .reply-form textarea {
+            min-height: 58px;
+            resize: vertical;
+        }
+
+        .reply-empty {
+            color: #4e6ca5;
+            font-style: italic;
+            margin-top: 8px;
+        }
+
         input, textarea {
             width: 100%;
             padding: 3px;

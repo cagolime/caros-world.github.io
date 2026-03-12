@@ -10,3 +10,5 @@ Thumbs.db
 
 # logs
 *.log
+
+/LOCAL-ONLY

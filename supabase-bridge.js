@@ -10,6 +10,8 @@
   let lastProfileError = "";
   let hasLoginEmailColumn = true;
   let updatesFilter = "world";
+  let openReplyPostId = null;
+  let hasRepliesTable = true;
 
   function htmlEscape(value) {
     return String(value)
@@ -20,9 +22,91 @@
       .replace(/'/g, "&#39;");
   }
 
+  function extractUrls(text) {
+    return String(text || "").match(/https?:\/\/[^\s<]+/g) || [];
+  }
+
+  function cleanUrlText(url) {
+    return String(url || "").replace(/[),.!?]+$/, "");
+  }
+
+  function getYouTubeId(rawUrl) {
+    try {
+      const url = new URL(rawUrl);
+      const host = url.hostname.replace(/^www\./, "").toLowerCase();
+      if (host === "youtu.be") {
+        return url.pathname.replace(/\//g, "") || "";
+      }
+      if (host === "youtube.com" || host === "m.youtube.com") {
+        if (url.pathname === "/watch") return url.searchParams.get("v") || "";
+        if (url.pathname.startsWith("/shorts/")) return url.pathname.split("/")[2] || "";
+        if (url.pathname.startsWith("/embed/")) return url.pathname.split("/")[2] || "";
+      }
+    } catch (_error) {
+      return "";
+    }
+    return "";
+  }
+
+  function getLinkPreviewHtml(rawUrl) {
+    const safeUrl = cleanUrlText(rawUrl);
+    if (!safeUrl) return "";
+
+    try {
+      const url = new URL(safeUrl);
+      const host = url.hostname.replace(/^www\./, "");
+      const youtubeId = getYouTubeId(safeUrl);
+      const title = youtubeId
+        ? "YouTube video"
+        : (url.pathname && url.pathname !== "/" ? decodeURIComponent(url.pathname.split("/").filter(Boolean).pop() || host) : host)
+            .replace(/[-_]+/g, " ")
+            .slice(0, 80);
+      const thumbHtml = youtubeId
+        ? `<img src="https://img.youtube.com/vi/${htmlEscape(youtubeId)}/hqdefault.jpg" alt="Link preview image" class="link-preview-thumb">`
+        : "";
+
+      return `
+        <a class="link-preview" href="${htmlEscape(safeUrl)}" target="_blank" rel="noopener noreferrer">
+          ${thumbHtml}
+          <span class="link-preview-site">${htmlEscape(host)}</span>
+          <span class="link-preview-title">${htmlEscape(title || host)}</span>
+          <span class="link-preview-url">${htmlEscape(safeUrl)}</span>
+        </a>
+      `;
+    } catch (_error) {
+      return "";
+    }
+  }
+
+  function formatPostText(text) {
+    const safeText = htmlEscape(text || "");
+    const linkified = safeText.replace(/(https?:\/\/[^\s<]+)/g, function (match) {
+      const cleanMatch = cleanUrlText(match);
+      return `<a href="${htmlEscape(cleanMatch)}" target="_blank" rel="noopener noreferrer">${htmlEscape(cleanMatch)}</a>`;
+    });
+    const previews = [...new Set(extractUrls(text).map(cleanUrlText))]
+      .map(getLinkPreviewHtml)
+      .filter(Boolean)
+      .join("");
+    return `${linkified.replace(/\n/g, "<br>")}${previews}`;
+  }
+
   function setMessage(id, text) {
     const el = document.getElementById(id);
     if (el) el.textContent = text;
+  }
+
+  function formatTimestamp(value) {
+    try {
+      return new Date(value).toLocaleDateString();
+    } catch (_error) {
+      return "";
+    }
+  }
+
+  function isMissingRepliesTable(error) {
+    const msg = String(error?.message || "").toLowerCase();
+    return msg.includes("replies") && (msg.includes("does not exist") || msg.includes("could not find") || msg.includes("relation"));
   }
 
   function renderUpdatesFilter() {
@@ -62,6 +146,47 @@
   function canDeletePost(postUserId) {
     if (!sessionUser) return false;
     return sessionUser.id === postUserId || isCarolineUser();
+  }
+
+  function renderRepliesHtml(postId, replies, nameMap) {
+    const items = (replies || [])
+      .map(function (reply) {
+        const replyName = htmlEscape(nameMap[reply.user_id] || "member");
+        return `
+          <div class="reply-entry" data-reply-id="${reply.id}">
+            <div class="reply-meta">${replyName} - ${htmlEscape(formatTimestamp(reply.created_at))}</div>
+            <div>${formatPostText(reply.content)}</div>
+          </div>
+        `;
+      })
+      .join("");
+
+    const showForm = openReplyPostId === String(postId);
+    const formHtml = showForm
+      ? `
+        <div class="reply-form">
+          <textarea id="reply-text-${postId}" placeholder="Write a reply..."></textarea>
+          <button type="button" onclick="submitReply('${postId}', this)">Post Reply</button>
+        </div>
+      `
+      : "";
+    const actionLabel = showForm ? "Close" : "Reply";
+    const hasContent = Boolean(items || formHtml);
+    const listHtml = hasContent
+      ? `
+        <div class="reply-list">
+          ${items}
+          ${formHtml}
+        </div>
+      `
+      : "";
+
+    return `
+      <div class="reply-tools">
+        <button type="button" class="reply-toggle" onclick="toggleReplyForm('${postId}')">${actionLabel}</button>
+      </div>
+      ${listHtml}
+    `;
   }
 
   function uniqueUsernameSeed(base) {
@@ -619,6 +744,37 @@
       nameMap[id] = await getUsername(id);
     }
 
+    const postIds = visiblePosts.map((post) => post.id);
+    let replies = [];
+    if (postIds.length) {
+      if (hasRepliesTable) {
+        const { data: repliesData, error: repliesError } = await client
+          .from("replies")
+          .select("id, post_id, user_id, content, created_at")
+          .in("post_id", postIds)
+          .order("created_at", { ascending: true });
+        if (repliesError) {
+          if (isMissingRepliesTable(repliesError)) {
+            hasRepliesTable = false;
+          }
+        } else {
+          replies = repliesData || [];
+        }
+      }
+    }
+
+    const replyUserIds = [...new Set(replies.map((reply) => reply.user_id).filter(Boolean))];
+    for (const id of replyUserIds) {
+      if (!nameMap[id]) nameMap[id] = await getUsername(id);
+    }
+
+    const repliesByPostId = {};
+    for (const reply of replies) {
+      const key = String(reply.post_id);
+      if (!repliesByPostId[key]) repliesByPostId[key] = [];
+      repliesByPostId[key].push(reply);
+    }
+
     updatesList.innerHTML = visiblePosts
       .map((post) => {
         const parsed = parsePostContent(post.content, post.created_at);
@@ -638,12 +794,79 @@
             <span class="update-date">${htmlEscape(parsed.date)} - ${displayName}${adminBadge}</span>
             ${deleteHtml}
             <br>
-            ${htmlEscape(parsed.text).replace(/\n/g, "<br>")}
+            ${formatPostText(parsed.text)}
             ${imageHtml}
+            ${hasRepliesTable ? renderRepliesHtml(post.id, repliesByPostId[String(post.id)] || [], nameMap) : ""}
           </div>
         `;
       })
       .join("");
+  }
+
+  async function submitReply(postId, buttonEl) {
+    if (!sessionUser) {
+      alert("Please sign in first.");
+      return;
+    }
+
+    const textEl = document.getElementById(`reply-text-${postId}`);
+    const replyText = textEl ? textEl.value.trim() : "";
+    if (!replyText) {
+      alert("Please enter a reply.");
+      return;
+    }
+
+    const btn = buttonEl || null;
+    if (btn) {
+      btn.disabled = true;
+      btn.dataset.originalText = btn.textContent || "Post Reply";
+      btn.textContent = "Posting...";
+    }
+
+    try {
+      if (!hasRepliesTable) {
+        alert("Replies are not enabled yet. Run the new Supabase SQL first.");
+        return;
+      }
+
+      const ok = await ensureProfile();
+      if (!ok) {
+        alert(`Could not create your member profile: ${lastProfileError || "unknown error"}`);
+        return;
+      }
+
+      const { error } = await client
+        .from("replies")
+        .insert({ post_id: postId, user_id: sessionUser.id, content: replyText });
+
+      if (error) {
+        if (isMissingRepliesTable(error)) {
+          hasRepliesTable = false;
+          alert("Replies are not enabled yet. Run the new Supabase SQL first.");
+          return;
+        }
+        alert(`Failed to post reply: ${error.message}`);
+        return;
+      }
+
+      openReplyPostId = String(postId);
+      await loadUpdatesFromSupabase();
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = btn.dataset.originalText || "Post Reply";
+      }
+    }
+  }
+
+  async function toggleReplyForm(postId) {
+    if (!sessionUser) {
+      if (typeof window.showPage === "function") window.showPage("login");
+      return;
+    }
+
+    openReplyPostId = openReplyPostId === String(postId) ? null : String(postId);
+    await loadUpdatesFromSupabase();
   }
 
   async function deletePostSupabase(postId, postUserId, buttonEl) {
@@ -807,6 +1030,8 @@
 
     window.addUpdate = addUpdateSupabase;
     window.deleteSupabasePost = deletePostSupabase;
+    window.submitReply = submitReply;
+    window.toggleReplyForm = toggleReplyForm;
     window.loadUpdates = loadUpdatesFromSupabase;
     window.saveUpdates = function () {};
     window.updateAccount = updateAccount;
