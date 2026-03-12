@@ -148,13 +148,21 @@
     return sessionUser.id === postUserId || isCarolineUser();
   }
 
+  function canDeleteReply(replyUserId) {
+    if (!sessionUser) return false;
+    return sessionUser.id === replyUserId || isCarolineUser();
+  }
+
   function renderRepliesHtml(postId, replies, nameMap) {
     const items = (replies || [])
       .map(function (reply) {
         const replyName = htmlEscape(nameMap[reply.user_id] || "member");
+        const deleteReplyHtml = canDeleteReply(reply.user_id)
+          ? ` <button class="delete-update" type="button" onclick="deleteSupabaseReply('${reply.id}','${reply.user_id}', this)">Delete</button>`
+          : "";
         return `
           <div class="reply-entry" data-reply-id="${reply.id}">
-            <div class="reply-meta">${replyName} - ${htmlEscape(formatTimestamp(reply.created_at))}</div>
+            <div class="reply-meta">${replyName} - ${htmlEscape(formatTimestamp(reply.created_at))}${deleteReplyHtml}</div>
             <div>${formatPostText(reply.content)}</div>
           </div>
         `;
@@ -942,6 +950,78 @@
     }
   }
 
+  async function deleteReplySupabase(replyId, replyUserId, buttonEl) {
+    if (!sessionUser) {
+      alert("Please sign in first.");
+      return;
+    }
+    if (!canDeleteReply(replyUserId)) {
+      alert("You can only delete your own replies.");
+      return;
+    }
+    if (!confirm("Delete this reply?")) return;
+
+    const btn = buttonEl || null;
+    const entry = btn ? btn.closest(".reply-entry") : null;
+    if (btn) {
+      btn.disabled = true;
+      btn.dataset.originalText = btn.textContent || "Delete";
+      btn.textContent = "Deleting...";
+    }
+    if (entry) entry.style.opacity = "0.6";
+
+    try {
+      await refreshSession();
+
+      let result = await client
+        .from("replies")
+        .delete()
+        .eq("id", replyId)
+        .select("id");
+
+      if (result.error && String(result.error.message || "").toLowerCase().includes("jwt")) {
+        await refreshSession();
+        result = await client
+          .from("replies")
+          .delete()
+          .eq("id", replyId)
+          .select("id");
+      }
+
+      if (result.error) {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = btn.dataset.originalText || "Delete";
+        }
+        if (entry) entry.style.opacity = "1";
+        alert(`Could not delete reply: ${result.error.message}`);
+        return;
+      }
+
+      const deletedCount = Array.isArray(result.data) ? result.data.length : 0;
+      if (deletedCount === 0) {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = btn.dataset.originalText || "Delete";
+        }
+        if (entry) entry.style.opacity = "1";
+        alert("Could not delete reply: blocked by permissions (RLS) or reply not found.");
+        return;
+      }
+
+      if (entry) entry.remove();
+      await loadUpdatesFromSupabase();
+    } catch (error) {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = btn.dataset.originalText || "Delete";
+      }
+      if (entry) entry.style.opacity = "1";
+      const message = String(error?.message || error || "");
+      alert(`Could not delete reply: ${message || "Network request failed. Check connection and try again."}`);
+    }
+  }
+
   async function addUpdateSupabase() {
     if (!sessionUser) {
       alert("Please sign in on the login page first.");
@@ -1030,6 +1110,7 @@
 
     window.addUpdate = addUpdateSupabase;
     window.deleteSupabasePost = deletePostSupabase;
+    window.deleteSupabaseReply = deleteReplySupabase;
     window.submitReply = submitReply;
     window.toggleReplyForm = toggleReplyForm;
     window.loadUpdates = loadUpdatesFromSupabase;

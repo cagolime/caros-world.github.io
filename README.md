@@ -7,6 +7,8 @@
 |   --|     |    -|  |  |__   |  | | | |  |  |    -|  |__|  |  |
 |_____|__|__|__|__|_____|_____|  |_____|_____|__|__|_____|____/
 
+where does the machine end?
+
 ```
 
 Site: [https://caros.world](https://caros.world)
