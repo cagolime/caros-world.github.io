@@ -866,7 +866,7 @@
                             <label class="updates-filter-label" for="updates-filter-select">choose ur destination... 🌍</label>
                             <select id="updates-filter-select" class="updates-filter-select">
                                 <option value="caros">caros world</option>
-                                <option value="world">the entire world</option>
+                                <option value="world" selected>the entire world</option>
                             </select>
                         </div>
                         <div id="updates-list">
@@ -876,7 +876,7 @@
                 </div>
 
                 <!-- Login Panel -->
-                <div class="login-panel" id="login-panel">
+                <div class="login-panel" id="login-panel" style="display: none;">
                     <strong>ðŸ”’ Admin Login</strong><br><br>
                     <input type="password" id="admin-password" placeholder="Enter password">
                     <button onclick="checkPassword()">Login</button>
@@ -2014,5 +2014,5 @@
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-bridge.js"></script></body></html>
+    <script type="module" src="./site-bridge-loader.js"></script></body></html>
 

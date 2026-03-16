@@ -1,0 +1,1 @@
+import './supabase-bridge.js';
