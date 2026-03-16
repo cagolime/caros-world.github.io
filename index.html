@@ -27,6 +27,10 @@
             margin: 0;
         }
 
+        .home-feed-shell {
+            width: 100%;
+        }
+
         .header {
             background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 130"><defs><pattern id="bubbles" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="8" fill="rgba(255,255,255,0.3)"/><circle cx="35" cy="30" r="5" fill="rgba(255,255,255,0.2)"/><circle cx="25" cy="40" r="3" fill="rgba(255,255,255,0.25)"/></pattern></defs><rect width="400" height="130" fill="%230047ab"/><rect width="400" height="130" fill="url(%23bubbles)"/></svg>') center/cover;
             border: 3px solid #0047ab;
@@ -313,6 +317,11 @@
             font-weight: bold;
         }
 
+        .window-titlebar {
+            cursor: default;
+            user-select: none;
+        }
+
         .login-panel {
             background: #ffe4e1;
             border: 2px solid #ff69b4;
@@ -497,6 +506,94 @@
             font-style: italic;
             margin-top: 3px;
         }
+
+        @media (min-width: 980px) {
+            body {
+                padding: 24px 28px 40px;
+            }
+
+            .container {
+                max-width: 1240px;
+                margin: 0 auto;
+            }
+
+            .header,
+            .nav-section {
+                max-width: 440px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .page > .section,
+            .page > .login-panel {
+                max-width: 440px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            #home {
+                position: relative;
+                min-height: 980px;
+            }
+
+            .home-feed-shell {
+                max-width: 440px;
+                margin: 0 auto;
+            }
+
+            #admin-panel,
+            body.page-home-active #session-bar {
+                position: fixed;
+                width: 320px;
+                margin-top: 0;
+                z-index: 1200;
+                box-shadow: 5px 5px 0 rgba(0, 71, 171, 0.18);
+            }
+
+            #admin-panel,
+            body.page-home-active #session-bar {
+                width: 320px;
+            }
+
+            #admin-panel {
+                padding-top: 12px;
+            }
+
+            #admin-panel .admin-title {
+                margin-top: -12px;
+                margin-right: -10px;
+                margin-left: -10px;
+            }
+
+            #admin-panel .admin-title,
+            body.page-home-active #session-bar .section-title {
+                cursor: move;
+            }
+
+            #admin-panel .section-content,
+            body.page-home-active #session-bar .section-content,
+            #admin-panel,
+            body.page-home-active #session-bar {
+                backdrop-filter: blur(1px);
+            }
+
+            body.page-home-active #session-bar .section-content {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                flex-wrap: nowrap;
+            }
+
+            body.page-home-active #session-bar #session-user-text {
+                flex: 1;
+                min-width: 0;
+            }
+
+            body.page-home-active #session-bar button {
+                margin-top: 0;
+                flex: 0 0 auto;
+            }
+        }
     </style>
 </head>
 <body>
@@ -509,49 +606,51 @@
 
         <!-- Home/Updates Page -->
         <div id="home" class="page active">
-            <div class="section">
-                <div class="section-title" id="home-title-1">Introduction</div>
-                <div class="section-content" id="intro-text">hello, this is Caroline :-) this website was made in the depths of the internet and i doubt you'll find it but who knows? maybe it was meant to be. this is for life updates and a way for me to spill my heart onto the internet for your viewing pleasures. i say as i speak into the void. hello god, its me, Caroline!</div>
-            </div>
+            <div class="home-feed-shell">
+                <div class="section">
+                    <div class="section-title" id="home-title-1">Introduction</div>
+                    <div class="section-content" id="intro-text">hello, this is Caroline :-) this website was made in the depths of the internet and i doubt you'll find it but who knows? maybe it was meant to be. this is for life updates and a way for me to spill my heart onto the internet for your viewing pleasures. i say as i speak into the void. hello god, its me, Caroline!</div>
+                </div>
 
-            <div class="section">
-                <div class="section-content">
-                    <div class="updates-filter" id="updates-filter">
-                        <button type="button" id="updates-filter-world" class="is-active">the entire world</button>
-                        <span class="divider">vs</span>
-                        <button type="button" id="updates-filter-caros">caros world</button>
+                <div class="section">
+                    <div class="section-content">
+                        <div class="updates-filter" id="updates-filter">
+                            <button type="button" id="updates-filter-world" class="is-active">the entire world</button>
+                            <span class="divider">vs</span>
+                            <button type="button" id="updates-filter-caros">caros world</button>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="section">
-                <div class="section-title">Featured</div>
-                <div class="section-content">
-                    <a class="feature-link" href="/caros-mixer/">
-                        <strong>caro's candy mixer</strong>
-                        camera-controlled browser synth + sequencer
-                    </a>
+                <div class="section">
+                    <div class="section-title">Featured</div>
+                    <div class="section-content">
+                        <a class="feature-link" href="/caros-mixer/">
+                            <strong>caro's candy mixer</strong>
+                            camera-controlled browser synth + sequencer
+                        </a>
+                    </div>
                 </div>
-            </div>
 
-            <div class="section">
-                <div class="section-title" id="home-title-2">Updates</div>
-                <div class="section-content" id="updates-list">
-                    <div class="empty-state">No updates yet.</div>
+                <div class="section">
+                    <div class="section-title" id="home-title-2">Updates</div>
+                    <div class="section-content" id="updates-list">
+                        <div class="empty-state">No updates yet.</div>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Login Panel -->
-            <div class="login-panel" id="login-panel">
-                <strong>ðŸ”’ Admin Login</strong><br><br>
-                <input type="password" id="admin-password" placeholder="Enter password">
-                <button onclick="checkPassword()">Login</button>
-                <div id="login-error" style="color: red; margin-top: 10px;"></div>
+                <!-- Login Panel -->
+                <div class="login-panel" id="login-panel">
+                    <strong>ðŸ”’ Admin Login</strong><br><br>
+                    <input type="password" id="admin-password" placeholder="Enter password">
+                    <button onclick="checkPassword()">Login</button>
+                    <div id="login-error" style="color: red; margin-top: 10px;"></div>
+                </div>
             </div>
 
             <!-- Admin Panel -->
             <div class="admin-panel" id="admin-panel">
-                <div class="admin-title">âœï¸ Admin: Add New Update</div>
+                <div class="admin-title window-titlebar" data-drag-handle>âœï¸ Admin: Add New Update</div>
                 <div id="post-auth-prompt" style="display: none;">
                     <div style="margin-bottom: 10px;">You must be logged in to post updates.</div>
                     <button type="button" onclick="showPage('login')">Login</button>
@@ -569,7 +668,6 @@
                     <div id="image-preview-container"></div>
 
                     <button onclick="addUpdate()">Post Update</button>
-                    <button onclick="logout()" style="background: #999;">Logout</button>
                 </div>
             </div>
         </div>
@@ -730,7 +828,7 @@
         </div>
 
         <div class="section" id="session-bar" style="margin-top: 5px; display: none;">
-            <div class="section-title">Session</div>
+            <div class="section-title window-titlebar" data-drag-handle>Session</div>
             <div class="section-content">
                 <span id="session-user-text">Not logged in.</span>
                 <button type="button" id="session-account-btn" style="margin-left: 10px;" onclick="showPage('account')">Account</button>
@@ -1003,8 +1101,131 @@
             const pages = document.querySelectorAll('.page');
             pages.forEach(page => page.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
+            document.body.classList.toggle('page-home-active', pageId === 'home');
             window.scrollTo(0, 0);
         }
+
+        (function () {
+            const widgetIds = ['admin-panel', 'session-bar'];
+            const positionKey = 'carosDesktopWidgetPositions';
+            let highestZ = 1300;
+
+            function isDesktopLayout() {
+                return window.innerWidth >= 980;
+            }
+
+            function isHomeActive() {
+                const homePage = document.getElementById('home');
+                return !!homePage && homePage.classList.contains('active');
+            }
+
+            function getStoredPositions() {
+                try {
+                    return JSON.parse(localStorage.getItem(positionKey) || '{}');
+                } catch (_error) {
+                    return {};
+                }
+            }
+
+            function saveStoredPositions(map) {
+                try {
+                    localStorage.setItem(positionKey, JSON.stringify(map));
+                } catch (_error) {}
+            }
+
+            function clamp(value, min, max) {
+                return Math.min(Math.max(value, min), max);
+            }
+
+            function getDefaultWidgetPositions() {
+                const feedWidth = 440;
+                const feedLeft = Math.round((window.innerWidth - feedWidth) / 2);
+                return {
+                    'admin-panel': { x: clamp(feedLeft - 344, 16, window.innerWidth - 336), y: 168 },
+                    'session-bar': { x: clamp(feedLeft + feedWidth + 28, 16, window.innerWidth - 336), y: 168 }
+                };
+            }
+
+            function applyWidgetPosition(el, position) {
+                if (!position) return;
+                const maxX = Math.max(16, window.innerWidth - el.offsetWidth - 16);
+                const maxY = Math.max(16, window.innerHeight - el.offsetHeight - 16);
+                el.style.left = clamp(position.x, 16, maxX) + 'px';
+                el.style.top = clamp(position.y, 16, maxY) + 'px';
+            }
+
+            function positionWidgets(forceReset) {
+                if (!isDesktopLayout() || !isHomeActive()) return;
+                const stored = getStoredPositions();
+                const defaults = getDefaultWidgetPositions();
+
+                widgetIds.forEach(function (id) {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    const nextPos = !forceReset && stored[id] ? stored[id] : defaults[id];
+                    applyWidgetPosition(el, nextPos);
+                });
+            }
+
+            function initWidget(el) {
+                const handle = el.querySelector('[data-drag-handle]');
+                if (!handle) return;
+
+                handle.addEventListener('pointerdown', function (event) {
+                    if (!isDesktopLayout() || !isHomeActive()) return;
+                    if (event.target.closest('button, input, textarea, a, label')) return;
+
+                    event.preventDefault();
+                    highestZ += 1;
+                    el.style.zIndex = highestZ;
+
+                    const rect = el.getBoundingClientRect();
+                    const offsetX = event.clientX - rect.left;
+                    const offsetY = event.clientY - rect.top;
+
+                    function onMove(moveEvent) {
+                        const maxX = Math.max(16, window.innerWidth - el.offsetWidth - 16);
+                        const maxY = Math.max(16, window.innerHeight - el.offsetHeight - 16);
+                        el.style.left = clamp(moveEvent.clientX - offsetX, 16, maxX) + 'px';
+                        el.style.top = clamp(moveEvent.clientY - offsetY, 16, maxY) + 'px';
+                    }
+
+                    function onUp() {
+                        window.removeEventListener('pointermove', onMove);
+                        window.removeEventListener('pointerup', onUp);
+                        const stored = getStoredPositions();
+                        stored[el.id] = {
+                            x: parseInt(el.style.left, 10) || rect.left,
+                            y: parseInt(el.style.top, 10) || rect.top
+                        };
+                        saveStoredPositions(stored);
+                    }
+
+                    window.addEventListener('pointermove', onMove);
+                    window.addEventListener('pointerup', onUp);
+                });
+            }
+
+            function initDesktopWidgets() {
+                widgetIds.forEach(function (id) {
+                    const el = document.getElementById(id);
+                    if (!el || el.dataset.widgetReady === 'true') return;
+                    el.dataset.widgetReady = 'true';
+                    initWidget(el);
+                });
+
+                positionWidgets(false);
+            }
+
+            window.addEventListener('resize', function () {
+                if (isDesktopLayout()) positionWidgets(false);
+            });
+
+            document.addEventListener('DOMContentLoaded', function () {
+                document.body.classList.toggle('page-home-active', true);
+                initDesktopWidgets();
+            });
+        })();
 
         function checkPassword() {
             const errorDiv = document.getElementById('login-error');
