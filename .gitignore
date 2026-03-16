@@ -11,4 +11,9 @@ Thumbs.db
 # logs
 *.log
 
+# node / vite
+node_modules/
+dist/
+.vite/
+
 /LOCAL-ONLY

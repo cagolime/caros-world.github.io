@@ -92,6 +92,26 @@
             text-decoration: underline;
         }
 
+        .feature-link {
+            display: block;
+            padding: 10px;
+            background: rgba(65, 105, 225, 0.08);
+            border: 2px solid #0047ab;
+            color: #001f7a;
+            text-decoration: none;
+            margin-top: 6px;
+        }
+
+        .feature-link:hover {
+            background: rgba(255, 20, 147, 0.08);
+            color: #001f7a;
+        }
+
+        .feature-link strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
         .nav-section span {
             color: white;
             margin: 0 3px;
@@ -505,6 +525,16 @@
             </div>
 
             <div class="section">
+                <div class="section-title">Featured</div>
+                <div class="section-content">
+                    <a class="feature-link" href="/caros-mixer/">
+                        <strong>caro's candy mixer</strong>
+                        camera-controlled browser synth + sequencer
+                    </a>
+                </div>
+            </div>
+
+            <div class="section">
                 <div class="section-title" id="home-title-2">Updates</div>
                 <div class="section-content" id="updates-list">
                     <div class="empty-state">No updates yet.</div>
@@ -725,6 +755,8 @@
             <a href="file:///C:/Users/carol/AppData/Local/Temp/pocky-blank-template%20(3).html#" onclick="showPage(&#39;members&#39;); return false;" id="nav-members">members</a>
             <span>Â«</span>
             <a href="file:///C:/Users/carol/AppData/Local/Temp/pocky-blank-template%20(3).html#" onclick="showPage(&#39;site-info&#39;); return false;" id="nav-site">site</a>
+            <span>Â«</span>
+            <a href="/caros-mixer/" id="nav-mixer">mixer</a>
             <span>Â«</span>
             <a href="file:///C:/Users/carol/AppData/Local/Temp/pocky-blank-template%20(3).html#" onclick="showPage(&#39;home&#39;); return false;" id="nav-home">clear</a>
         </div>
