@@ -110,11 +110,9 @@
   }
 
   function renderUpdatesFilter() {
-    const worldBtn = document.getElementById("updates-filter-world");
-    const carosBtn = document.getElementById("updates-filter-caros");
-    if (!worldBtn || !carosBtn) return;
-    worldBtn.classList.toggle("is-active", updatesFilter === "world");
-    carosBtn.classList.toggle("is-active", updatesFilter === "caros");
+    const select = document.getElementById("updates-filter-select");
+    if (!select) return;
+    select.value = updatesFilter === "caros" ? "caros" : "world";
   }
 
   async function setUpdatesFilter(mode) {
@@ -1126,16 +1124,18 @@
     const signoutBtn = document.getElementById("signout-btn");
     const accountForm = document.getElementById("account-form");
     const accountPasswordForm = document.getElementById("account-password-form");
-    const worldFilterBtn = document.getElementById("updates-filter-world");
-    const carosFilterBtn = document.getElementById("updates-filter-caros");
+    const updatesFilterSelect = document.getElementById("updates-filter-select");
 
     if (signupForm) signupForm.addEventListener("submit", signUp);
     if (signinForm) signinForm.addEventListener("submit", signIn);
     if (signoutBtn) signoutBtn.addEventListener("click", signOut);
     if (accountForm) accountForm.addEventListener("submit", updateAccount);
     if (accountPasswordForm) accountPasswordForm.addEventListener("submit", updateAccountPassword);
-    if (worldFilterBtn) worldFilterBtn.addEventListener("click", () => setUpdatesFilter("world"));
-    if (carosFilterBtn) carosFilterBtn.addEventListener("click", () => setUpdatesFilter("caros"));
+    if (updatesFilterSelect) {
+      updatesFilterSelect.addEventListener("change", (event) => {
+        setUpdatesFilter(event.target.value);
+      });
+    }
     renderUpdatesFilter();
 
     await refreshSession();

@@ -97,7 +97,10 @@
         }
 
         .feature-link {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
             padding: 10px;
             background: rgba(65, 105, 225, 0.08);
             border: 2px solid #0047ab;
@@ -111,9 +114,103 @@
             color: #001f7a;
         }
 
+        .feature-link-copy {
+            flex: 1;
+            min-width: 0;
+        }
+
         .feature-link strong {
             display: block;
             margin-bottom: 4px;
+        }
+
+        .feature-link-image {
+            display: block;
+            width: 108px;
+            height: 76px;
+            object-fit: cover;
+            border: 2px solid #0047ab;
+            flex: 0 0 auto;
+            background: white;
+        }
+
+        .window-titlebar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .window-title-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .window-controls {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex: 0 0 auto;
+        }
+
+        .window-control-btn {
+            margin: 0;
+            padding: 1px 8px 2px;
+            min-width: 0;
+            border: 1px solid #0047ab;
+            background: #c8d8f0;
+            color: #0047ab;
+            font-size: 12px;
+            line-height: 1;
+        }
+
+        .window-control-btn:hover {
+            background: #ffe4e1;
+            color: #0047ab;
+        }
+
+        .window-resize-handle {
+            display: none;
+        }
+
+        .background-widget {
+            display: none;
+        }
+
+        .background-option-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 6px;
+            margin: 8px 0 10px;
+        }
+
+        .background-swatch {
+            width: 100%;
+            height: 28px;
+            border: 2px solid #0047ab;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+        }
+
+        .background-swatch.is-active {
+            outline: 2px solid white;
+            outline-offset: 1px;
+        }
+
+        .background-widget-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .background-widget-note {
+            font-size: 10px;
+            color: #355d99;
+            margin-top: 8px;
+            line-height: 1.4;
         }
 
         .nav-section span {
@@ -136,6 +233,49 @@
 
         .page.active {
             display: block;
+        }
+
+        #featured-widget {
+            display: none;
+        }
+
+        #mixer-window {
+            display: none;
+        }
+
+        body.page-home-active #featured-widget {
+            display: block;
+        }
+
+        body.page-home-active #mixer-window.is-open {
+            display: block;
+        }
+
+        body.page-home-active #mixer-window.is-closing {
+            display: block;
+        }
+
+        @media (min-width: 980px) {
+            .background-widget {
+                display: block;
+                position: fixed;
+                right: 16px;
+                bottom: 16px;
+                width: 280px;
+                z-index: 1100;
+                box-shadow: 5px 5px 0 rgba(0, 71, 171, 0.18);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .feature-link {
+                align-items: flex-start;
+            }
+
+            .feature-link-image {
+                width: 84px;
+                height: 64px;
+            }
         }
 
         .update-entry {
@@ -463,30 +603,44 @@
         }
 
         .updates-filter {
-            padding: 4px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 8px 10px;
             color: #0a44a3;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 12px;
+            background: rgba(255, 255, 255, 0.35);
+            border: 1px solid #7ca3d9;
+            margin-bottom: 10px;
         }
 
-        .updates-filter button {
-            background: transparent;
-            border: none;
-            color: #0a44a3;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
-            padding: 0;
+        .updates-filter-label {
             text-transform: lowercase;
         }
 
-        .updates-filter button.is-active {
-            text-decoration: underline;
-            text-underline-offset: 2px;
+        .updates-filter-select {
+            width: auto;
+            min-width: 190px;
+            margin: 0;
+            padding: 5px 8px;
+            border: 1px solid #0047ab;
+            background: white;
+            color: #0a44a3;
+            font-weight: bold;
+            text-transform: lowercase;
         }
 
-        .updates-filter .divider {
-            padding: 0 8px;
+        @media (max-width: 640px) {
+            .updates-filter {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .updates-filter-select {
+                width: 100%;
+            }
         }
 
         .save-all-btn {
@@ -531,6 +685,12 @@
                 margin-right: auto;
             }
 
+            #session-bar {
+                max-width: 440px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
             #home {
                 position: relative;
                 min-height: 980px;
@@ -542,7 +702,10 @@
             }
 
             #admin-panel,
-            body.page-home-active #session-bar {
+            body.page-home-active #session-bar,
+            body.page-home-active #featured-widget,
+            body.page-home-active #mixer-window.is-open,
+            body.page-home-active #mixer-window.is-closing {
                 position: fixed;
                 width: 320px;
                 margin-top: 0;
@@ -551,8 +714,26 @@
             }
 
             #admin-panel,
-            body.page-home-active #session-bar {
+            body.page-home-active #session-bar,
+            body.page-home-active #featured-widget {
                 width: 320px;
+            }
+
+            body.page-home-active #mixer-window.is-open {
+                width: min(760px, calc(100vw - 32px));
+                height: min(820px, calc(100vh - 32px));
+                z-index: 1500;
+                transform-origin: top left;
+                animation: mixer-window-open 180ms ease-out;
+            }
+
+            body.page-home-active #mixer-window.is-closing {
+                width: min(760px, calc(100vw - 32px));
+                height: min(820px, calc(100vh - 32px));
+                z-index: 1500;
+                transform-origin: top left;
+                animation: mixer-window-close 160ms ease-in forwards;
+                pointer-events: none;
             }
 
             #admin-panel {
@@ -566,14 +747,20 @@
             }
 
             #admin-panel .admin-title,
-            body.page-home-active #session-bar .section-title {
+            body.page-home-active #session-bar .section-title,
+            body.page-home-active #featured-widget .section-title,
+            body.page-home-active #mixer-window .section-title {
                 cursor: move;
             }
 
             #admin-panel .section-content,
             body.page-home-active #session-bar .section-content,
+            body.page-home-active #featured-widget .section-content,
+            body.page-home-active #mixer-window .section-content,
             #admin-panel,
-            body.page-home-active #session-bar {
+            body.page-home-active #session-bar,
+            body.page-home-active #featured-widget,
+            body.page-home-active #mixer-window {
                 backdrop-filter: blur(1px);
             }
 
@@ -592,6 +779,66 @@
             body.page-home-active #session-bar button {
                 margin-top: 0;
                 flex: 0 0 auto;
+            }
+
+            body.page-home-active #featured-widget {
+                display: block;
+            }
+
+            #admin-panel,
+            body.page-home-active #session-bar,
+            body.page-home-active #featured-widget,
+            body.page-home-active #mixer-window {
+                overflow: hidden;
+            }
+
+            body.page-home-active #mixer-window .section-content {
+                height: calc(100% - 40px);
+                padding: 0;
+                background: #f5deb3;
+            }
+
+            body.page-home-active #mixer-window iframe {
+                display: block;
+                width: 100%;
+                height: 100%;
+                border: 0;
+                background: #f5deb3;
+            }
+
+            #admin-panel .window-resize-handle,
+            body.page-home-active #mixer-window .window-resize-handle {
+                display: block;
+                position: absolute;
+                right: 0;
+                bottom: 0;
+                width: 18px;
+                height: 18px;
+                cursor: nwse-resize;
+                background:
+                    linear-gradient(135deg, transparent 0 46%, #0047ab 46% 52%, transparent 52% 64%, #0047ab 64% 70%, transparent 70% 82%, #0047ab 82% 88%, transparent 88% 100%);
+            }
+        }
+
+        @keyframes mixer-window-open {
+            from {
+                opacity: 0;
+                transform: scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes mixer-window-close {
+            from {
+                opacity: 1;
+                transform: scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: scale(0.97);
             }
         }
     </style>
@@ -613,29 +860,18 @@
                 </div>
 
                 <div class="section">
+                    <div class="section-title" id="home-title-2">Updates</div>
                     <div class="section-content">
                         <div class="updates-filter" id="updates-filter">
-                            <button type="button" id="updates-filter-world" class="is-active">the entire world</button>
-                            <span class="divider">vs</span>
-                            <button type="button" id="updates-filter-caros">caros world</button>
+                            <label class="updates-filter-label" for="updates-filter-select">choose ur destination... 🌍</label>
+                            <select id="updates-filter-select" class="updates-filter-select">
+                                <option value="caros">caros world</option>
+                                <option value="world">the entire world</option>
+                            </select>
                         </div>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <div class="section-title">Featured</div>
-                    <div class="section-content">
-                        <a class="feature-link" href="/caros-mixer/">
-                            <strong>caro's candy mixer</strong>
-                            camera-controlled browser synth + sequencer
-                        </a>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <div class="section-title" id="home-title-2">Updates</div>
-                    <div class="section-content" id="updates-list">
+                        <div id="updates-list">
                         <div class="empty-state">No updates yet.</div>
+                        </div>
                     </div>
                 </div>
 
@@ -669,7 +905,34 @@
 
                     <button onclick="addUpdate()">Post Update</button>
                 </div>
+                <div class="window-resize-handle" data-resize-target="admin-panel" aria-hidden="true"></div>
             </div>
+        </div>
+
+        <div class="section" id="featured-widget">
+            <div class="section-title window-titlebar" data-drag-handle>Featured Widgets</div>
+            <div class="section-content">
+                <a class="feature-link" href="/caros-mixer/" id="open-mixer-window">
+                    <span class="feature-link-copy">
+                        <strong>caro's candy mixer</strong>
+                        camera-controlled browser synth + sequencer
+                    </span>
+                    <img class="feature-link-image" src="/images/caros-mixer-cover.png" alt="caro's candy mixer cover image">
+                </a>
+            </div>
+        </div>
+
+        <div class="section" id="mixer-window">
+            <div class="section-title window-titlebar" data-drag-handle>
+                <span class="window-title-text">caro's candy mixer</span>
+                <span class="window-controls">
+                    <button type="button" class="window-control-btn" id="minimize-mixer-window" aria-label="Minimize mixer window">_</button>
+                </span>
+            </div>
+            <div class="section-content">
+                <iframe id="mixer-window-frame" title="caro's candy mixer window" data-src="/caros-mixer/"></iframe>
+            </div>
+            <div class="window-resize-handle" id="mixer-window-resize" aria-hidden="true"></div>
         </div>
 
         <!-- About Page -->
@@ -836,6 +1099,27 @@
             </div>
         </div>
 
+        <div class="section background-widget" id="background-widget">
+            <div class="section-title">Background</div>
+            <div class="section-content">
+                <div>the candy selection:</div>
+                <div class="background-option-grid" id="background-option-grid">
+                    <button type="button" class="background-swatch" data-bg-color="linear-gradient(180deg, #b8d4f1 0%, #a8c8e8 100%)" aria-label="Original background" style="background:linear-gradient(180deg, #b8d4f1 0%, #a8c8e8 100%);"></button>
+                    <button type="button" class="background-swatch" data-bg-color="#42d3bc" aria-label="Mint candy background" style="background:#42d3bc;"></button>
+                    <button type="button" class="background-swatch" data-bg-color="#2bb9d7" aria-label="Aqua candy background" style="background:#2bb9d7;"></button>
+                    <button type="button" class="background-swatch" data-bg-color="#7868eb" aria-label="Periwinkle candy background" style="background:#7868eb;"></button>
+                    <button type="button" class="background-swatch" data-bg-color="#ef70b7" aria-label="Pink candy background" style="background:#ef70b7;"></button>
+                    <button type="button" class="background-swatch" data-bg-color="#ffe45c" aria-label="Lemon candy background" style="background:#ffe45c;"></button>
+                </div>
+                <div class="background-widget-actions">
+                    <label class="file-input-label" for="background-image-input">upload photo</label>
+                    <input type="file" id="background-image-input" accept="image/*" style="display: none;">
+                    <button type="button" id="background-reset-btn" style="background: #999;">Reset</button>
+                </div>
+                <div class="background-widget-note">saves only in your browser on this device.</div>
+            </div>
+        </div>
+
         <!-- Navigation -->
         <div class="nav-section">
             <a href="file:///C:/Users/carol/AppData/Local/Temp/pocky-blank-template%20(3).html#" onclick="showPage(&#39;about&#39;); return false;" id="nav-about">Â« about</a>
@@ -853,8 +1137,6 @@
             <a href="file:///C:/Users/carol/AppData/Local/Temp/pocky-blank-template%20(3).html#" onclick="showPage(&#39;members&#39;); return false;" id="nav-members">members</a>
             <span>Â«</span>
             <a href="file:///C:/Users/carol/AppData/Local/Temp/pocky-blank-template%20(3).html#" onclick="showPage(&#39;site-info&#39;); return false;" id="nav-site">site</a>
-            <span>Â«</span>
-            <a href="/caros-mixer/" id="nav-mixer">mixer</a>
             <span>Â«</span>
             <a href="file:///C:/Users/carol/AppData/Local/Temp/pocky-blank-template%20(3).html#" onclick="showPage(&#39;home&#39;); return false;" id="nav-home">clear</a>
         </div>
@@ -1093,6 +1375,8 @@
     <script>
         // Legacy admin password mode is intentionally disabled.
         const ADMIN_PASSWORD = '';
+        const DEFAULT_BODY_BACKGROUND = 'linear-gradient(180deg, #b8d4f1 0%, #a8c8e8 100%)';
+        const BACKGROUND_STORAGE_KEY = 'carosCustomBackground';
 
         let isLoggedIn = false;
         let currentImageData = null;
@@ -1106,9 +1390,11 @@
         }
 
         (function () {
-            const widgetIds = ['admin-panel', 'session-bar'];
+            const widgetIds = ['admin-panel', 'session-bar', 'featured-widget', 'mixer-window'];
             const positionKey = 'carosDesktopWidgetPositions';
+            const sizeKey = 'carosDesktopWidgetSizes';
             let highestZ = 1300;
+            let mixerCloseTimer = null;
 
             function isDesktopLayout() {
                 return window.innerWidth >= 980;
@@ -1133,6 +1419,20 @@
                 } catch (_error) {}
             }
 
+            function getStoredSizes() {
+                try {
+                    return JSON.parse(localStorage.getItem(sizeKey) || '{}');
+                } catch (_error) {
+                    return {};
+                }
+            }
+
+            function saveStoredSizes(map) {
+                try {
+                    localStorage.setItem(sizeKey, JSON.stringify(map));
+                } catch (_error) {}
+            }
+
             function clamp(value, min, max) {
                 return Math.min(Math.max(value, min), max);
             }
@@ -1142,8 +1442,41 @@
                 const feedLeft = Math.round((window.innerWidth - feedWidth) / 2);
                 return {
                     'admin-panel': { x: clamp(feedLeft - 344, 16, window.innerWidth - 336), y: 168 },
-                    'session-bar': { x: clamp(feedLeft + feedWidth + 28, 16, window.innerWidth - 336), y: 168 }
+                    'session-bar': { x: clamp(feedLeft + feedWidth + 28, 16, window.innerWidth - 336), y: 168 },
+                    'featured-widget': { x: clamp(feedLeft + feedWidth + 28, 16, window.innerWidth - 336), y: 372 },
+                    'mixer-window': { x: clamp(feedLeft - 120, 16, window.innerWidth - 776), y: 72 }
                 };
+            }
+
+            function getWidgetSizeConfig(id) {
+                if (id === 'mixer-window') {
+                    return { minWidth: 420, minHeight: 420, defaultWidth: 760, defaultHeight: 820 };
+                }
+                if (id === 'admin-panel') {
+                    return { minWidth: 320, minHeight: 230, defaultWidth: 320, defaultHeight: null };
+                }
+                return null;
+            }
+
+            function applyWidgetSize(el) {
+                if (!el || !isDesktopLayout() || !isHomeActive()) return;
+                const config = getWidgetSizeConfig(el.id);
+                if (!config) return;
+                const storedSizes = getStoredSizes();
+                const size = storedSizes[el.id];
+                const maxWidth = Math.max(config.minWidth, window.innerWidth - 32);
+                const maxHeight = Math.max(config.minHeight, window.innerHeight - 32);
+                const width = size && size.width
+                    ? clamp(size.width, config.minWidth, maxWidth)
+                    : Math.min(config.defaultWidth, maxWidth);
+                el.style.width = width + 'px';
+                if (config.defaultHeight || (size && size.height)) {
+                    const baseHeight = size && size.height ? size.height : config.defaultHeight;
+                    const height = clamp(baseHeight, config.minHeight, maxHeight);
+                    el.style.height = height + 'px';
+                } else {
+                    el.style.removeProperty('height');
+                }
             }
 
             function applyWidgetPosition(el, position) {
@@ -1162,6 +1495,7 @@
                 widgetIds.forEach(function (id) {
                     const el = document.getElementById(id);
                     if (!el) return;
+                    applyWidgetSize(el);
                     const nextPos = !forceReset && stored[id] ? stored[id] : defaults[id];
                     applyWidgetPosition(el, nextPos);
                 });
@@ -1206,14 +1540,129 @@
                 });
             }
 
+            function bringWidgetToFront(el) {
+                highestZ += 1;
+                el.style.zIndex = highestZ;
+            }
+
+            function openMixerWindow() {
+                const mixerWindow = document.getElementById('mixer-window');
+                const mixerFrame = document.getElementById('mixer-window-frame');
+                if (!mixerWindow) return;
+                if (mixerCloseTimer) {
+                    window.clearTimeout(mixerCloseTimer);
+                    mixerCloseTimer = null;
+                }
+                mixerWindow.classList.remove('is-closing');
+                mixerWindow.classList.add('is-open');
+                if (mixerFrame && !mixerFrame.getAttribute('src')) {
+                    mixerFrame.setAttribute('src', mixerFrame.dataset.src || '/caros-mixer/');
+                }
+                positionWidgets(false);
+                bringWidgetToFront(mixerWindow);
+            }
+
+            function closeMixerWindow() {
+                const mixerWindow = document.getElementById('mixer-window');
+                if (!mixerWindow) return;
+                if (mixerCloseTimer) {
+                    window.clearTimeout(mixerCloseTimer);
+                }
+                mixerWindow.classList.remove('is-open');
+                mixerWindow.classList.add('is-closing');
+                mixerCloseTimer = window.setTimeout(function () {
+                    mixerWindow.classList.remove('is-closing');
+                    mixerCloseTimer = null;
+                }, 180);
+            }
+
+            function initWidgetResize() {
+                const resizeHandles = document.querySelectorAll('[data-resize-target]');
+
+                resizeHandles.forEach(function (resizeHandle) {
+                    if (resizeHandle.dataset.resizeReady === 'true') return;
+                    resizeHandle.dataset.resizeReady = 'true';
+
+                    resizeHandle.addEventListener('pointerdown', function (event) {
+                        if (!isDesktopLayout() || !isHomeActive()) return;
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        const targetId = resizeHandle.getAttribute('data-resize-target');
+                        const target = targetId ? document.getElementById(targetId) : null;
+                        if (!target) return;
+                        const config = getWidgetSizeConfig(target.id);
+                        if (!config) return;
+
+                        bringWidgetToFront(target);
+
+                        const startWidth = target.offsetWidth;
+                        const startHeight = target.offsetHeight;
+                        const startX = event.clientX;
+                        const startY = event.clientY;
+
+                        function onMove(moveEvent) {
+                            const maxWidth = Math.max(config.minWidth, window.innerWidth - target.offsetLeft - 16);
+                            const nextWidth = clamp(startWidth + (moveEvent.clientX - startX), config.minWidth, maxWidth);
+                            target.style.width = nextWidth + 'px';
+
+                            const allowsHeightResize = target.id === 'mixer-window' || target.id === 'admin-panel';
+                            if (allowsHeightResize) {
+                                const maxHeight = Math.max(config.minHeight, window.innerHeight - target.offsetTop - 16);
+                                const nextHeight = clamp(startHeight + (moveEvent.clientY - startY), config.minHeight, maxHeight);
+                                target.style.height = nextHeight + 'px';
+                            }
+                        }
+
+                        function onUp() {
+                            window.removeEventListener('pointermove', onMove);
+                            window.removeEventListener('pointerup', onUp);
+                            const storedSizes = getStoredSizes();
+                            const nextSize = {
+                                width: parseInt(target.style.width, 10) || target.offsetWidth
+                            };
+                            if (target.style.height) {
+                                nextSize.height = parseInt(target.style.height, 10) || target.offsetHeight;
+                            }
+                            storedSizes[target.id] = nextSize;
+                            saveStoredSizes(storedSizes);
+                        }
+
+                        window.addEventListener('pointermove', onMove);
+                        window.addEventListener('pointerup', onUp);
+                    });
+                });
+            }
+
             function initDesktopWidgets() {
                 widgetIds.forEach(function (id) {
                     const el = document.getElementById(id);
                     if (!el || el.dataset.widgetReady === 'true') return;
                     el.dataset.widgetReady = 'true';
                     initWidget(el);
+                    el.addEventListener('pointerdown', function () {
+                        if (isDesktopLayout() && isHomeActive()) bringWidgetToFront(el);
+                    });
                 });
 
+                const mixerLaunch = document.getElementById('open-mixer-window');
+                const mixerMinimize = document.getElementById('minimize-mixer-window');
+
+                if (mixerLaunch) {
+                    mixerLaunch.addEventListener('click', function (event) {
+                        if (!isDesktopLayout() || !isHomeActive()) return;
+                        event.preventDefault();
+                        openMixerWindow();
+                    });
+                }
+
+                if (mixerMinimize) {
+                    mixerMinimize.addEventListener('click', function () {
+                        closeMixerWindow();
+                    });
+                }
+
+                initWidgetResize();
                 positionWidgets(false);
             }
 
@@ -1224,8 +1673,112 @@
             document.addEventListener('DOMContentLoaded', function () {
                 document.body.classList.toggle('page-home-active', true);
                 initDesktopWidgets();
+                initBackgroundWidget();
             });
         })();
+
+        function setCustomBackground(choice) {
+            if (!choice || !choice.type) {
+                document.body.style.background = DEFAULT_BODY_BACKGROUND;
+                document.body.style.backgroundImage = '';
+                document.body.style.backgroundSize = '';
+                document.body.style.backgroundPosition = '';
+                document.body.style.backgroundRepeat = '';
+                document.body.style.backgroundAttachment = '';
+                return;
+            }
+
+            if (choice.type === 'color') {
+                document.body.style.background = choice.value;
+                document.body.style.backgroundImage = 'none';
+                document.body.style.backgroundSize = '';
+                document.body.style.backgroundPosition = '';
+                document.body.style.backgroundRepeat = '';
+                document.body.style.backgroundAttachment = '';
+                return;
+            }
+
+            if (choice.type === 'image') {
+                document.body.style.background = choice.fallback || '#b8d4f1';
+                document.body.style.backgroundImage = `url("${choice.value}")`;
+                document.body.style.backgroundSize = 'contain';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundRepeat = 'no-repeat';
+                document.body.style.backgroundAttachment = 'fixed';
+            }
+        }
+
+        function updateBackgroundSwatchState(choice) {
+            const swatches = document.querySelectorAll('.background-swatch');
+            swatches.forEach((swatch) => {
+                const isActive = choice && choice.type === 'color' && swatch.dataset.bgColor === choice.value;
+                swatch.classList.toggle('is-active', isActive);
+            });
+        }
+
+        function saveCustomBackground(choice) {
+            if (!choice) {
+                localStorage.removeItem(BACKGROUND_STORAGE_KEY);
+                updateBackgroundSwatchState(null);
+                setCustomBackground(null);
+                return;
+            }
+
+            localStorage.setItem(BACKGROUND_STORAGE_KEY, JSON.stringify(choice));
+            updateBackgroundSwatchState(choice);
+            setCustomBackground(choice);
+        }
+
+        function loadCustomBackground() {
+            try {
+                const raw = localStorage.getItem(BACKGROUND_STORAGE_KEY);
+                if (!raw) return null;
+                return JSON.parse(raw);
+            } catch (_error) {
+                return null;
+            }
+        }
+
+        function initBackgroundWidget() {
+            const swatches = document.querySelectorAll('.background-swatch');
+            const imageInput = document.getElementById('background-image-input');
+            const resetBtn = document.getElementById('background-reset-btn');
+            const storedChoice = loadCustomBackground();
+
+            updateBackgroundSwatchState(storedChoice);
+            setCustomBackground(storedChoice);
+
+            swatches.forEach((swatch) => {
+                swatch.addEventListener('click', function () {
+                    const color = swatch.dataset.bgColor;
+                    if (!color) return;
+                    saveCustomBackground({ type: 'color', value: color });
+                });
+            });
+
+            if (imageInput) {
+                imageInput.addEventListener('change', function () {
+                    const file = imageInput.files && imageInput.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = function (event) {
+                        saveCustomBackground({
+                            type: 'image',
+                            value: event.target.result,
+                            fallback: '#b8d4f1'
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            if (resetBtn) {
+                resetBtn.addEventListener('click', function () {
+                    if (imageInput) imageInput.value = '';
+                    saveCustomBackground(null);
+                });
+            }
+        }
 
         function checkPassword() {
             const errorDiv = document.getElementById('login-error');
