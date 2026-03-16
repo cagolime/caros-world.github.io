@@ -720,16 +720,16 @@
             }
 
             body.page-home-active #mixer-window.is-open {
-                width: min(760px, calc(100vw - 32px));
-                height: min(820px, calc(100vh - 32px));
+                width: min(1520px, calc(100vw - 32px));
+                height: min(1100px, calc(100vh - 32px));
                 z-index: 1500;
                 transform-origin: top left;
                 animation: mixer-window-open 180ms ease-out;
             }
 
             body.page-home-active #mixer-window.is-closing {
-                width: min(760px, calc(100vw - 32px));
-                height: min(820px, calc(100vh - 32px));
+                width: min(1520px, calc(100vw - 32px));
+                height: min(1100px, calc(100vh - 32px));
                 z-index: 1500;
                 transform-origin: top left;
                 animation: mixer-window-close 160ms ease-in forwards;
@@ -932,7 +932,7 @@
             <div class="section-content">
                 <iframe id="mixer-window-frame" title="caro's candy mixer window" data-src="/caros-mixer/"></iframe>
             </div>
-            <div class="window-resize-handle" id="mixer-window-resize" aria-hidden="true"></div>
+            <div class="window-resize-handle" data-resize-target="mixer-window" aria-hidden="true"></div>
         </div>
 
         <!-- About Page -->
@@ -1392,7 +1392,6 @@
         (function () {
             const widgetIds = ['admin-panel', 'session-bar', 'featured-widget', 'mixer-window'];
             const positionKey = 'carosDesktopWidgetPositions';
-            const sizeKey = 'carosDesktopWidgetSizes';
             let highestZ = 1300;
             let mixerCloseTimer = null;
 
@@ -1419,20 +1418,6 @@
                 } catch (_error) {}
             }
 
-            function getStoredSizes() {
-                try {
-                    return JSON.parse(localStorage.getItem(sizeKey) || '{}');
-                } catch (_error) {
-                    return {};
-                }
-            }
-
-            function saveStoredSizes(map) {
-                try {
-                    localStorage.setItem(sizeKey, JSON.stringify(map));
-                } catch (_error) {}
-            }
-
             function clamp(value, min, max) {
                 return Math.min(Math.max(value, min), max);
             }
@@ -1440,17 +1425,18 @@
             function getDefaultWidgetPositions() {
                 const feedWidth = 440;
                 const feedLeft = Math.round((window.innerWidth - feedWidth) / 2);
+                const mixerWidth = Math.min(1536, window.innerWidth - 32);
                 return {
                     'admin-panel': { x: clamp(feedLeft - 344, 16, window.innerWidth - 336), y: 168 },
                     'session-bar': { x: clamp(feedLeft + feedWidth + 28, 16, window.innerWidth - 336), y: 168 },
                     'featured-widget': { x: clamp(feedLeft + feedWidth + 28, 16, window.innerWidth - 336), y: 372 },
-                    'mixer-window': { x: clamp(feedLeft - 120, 16, window.innerWidth - 776), y: 72 }
+                    'mixer-window': { x: Math.max(16, Math.round((window.innerWidth - mixerWidth) / 2)), y: 48 }
                 };
             }
 
             function getWidgetSizeConfig(id) {
                 if (id === 'mixer-window') {
-                    return { minWidth: 420, minHeight: 420, defaultWidth: 760, defaultHeight: 820 };
+                    return { minWidth: 900, minHeight: 650, defaultWidth: 1536, defaultHeight: 1040 };
                 }
                 if (id === 'admin-panel') {
                     return { minWidth: 320, minHeight: 230, defaultWidth: 320, defaultHeight: null };
@@ -1462,17 +1448,17 @@
                 if (!el || !isDesktopLayout() || !isHomeActive()) return;
                 const config = getWidgetSizeConfig(el.id);
                 if (!config) return;
-                const storedSizes = getStoredSizes();
-                const size = storedSizes[el.id];
+                if (el.id === 'mixer-window') {
+                    el.style.width = Math.min(config.defaultWidth, window.innerWidth - 32) + 'px';
+                    el.style.height = Math.min(config.defaultHeight, window.innerHeight - 32) + 'px';
+                    return;
+                }
                 const maxWidth = Math.max(config.minWidth, window.innerWidth - 32);
                 const maxHeight = Math.max(config.minHeight, window.innerHeight - 32);
-                const width = size && size.width
-                    ? clamp(size.width, config.minWidth, maxWidth)
-                    : Math.min(config.defaultWidth, maxWidth);
+                const width = Math.min(config.defaultWidth, maxWidth);
                 el.style.width = width + 'px';
-                if (config.defaultHeight || (size && size.height)) {
-                    const baseHeight = size && size.height ? size.height : config.defaultHeight;
-                    const height = clamp(baseHeight, config.minHeight, maxHeight);
+                if (config.defaultHeight) {
+                    const height = clamp(config.defaultHeight, config.minHeight, maxHeight);
                     el.style.height = height + 'px';
                 } else {
                     el.style.removeProperty('height');
@@ -1617,15 +1603,6 @@
                         function onUp() {
                             window.removeEventListener('pointermove', onMove);
                             window.removeEventListener('pointerup', onUp);
-                            const storedSizes = getStoredSizes();
-                            const nextSize = {
-                                width: parseInt(target.style.width, 10) || target.offsetWidth
-                            };
-                            if (target.style.height) {
-                                nextSize.height = parseInt(target.style.height, 10) || target.offsetHeight;
-                            }
-                            storedSizes[target.id] = nextSize;
-                            saveStoredSizes(storedSizes);
                         }
 
                         window.addEventListener('pointermove', onMove);
