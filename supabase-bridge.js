@@ -1020,69 +1020,83 @@
     }
   }
 
-  async function addUpdateSupabase() {
-    if (!sessionUser) {
-      alert("Please sign in on the login page first.");
-      return;
+  async function addUpdateSupabase(event) {
+    if (event && typeof event.preventDefault === "function") event.preventDefault();
+
+    const submitBtn = document.getElementById("post-update-btn");
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.dataset.originalText = submitBtn.dataset.originalText || submitBtn.textContent || "Post Update";
+      submitBtn.textContent = "Posting...";
     }
 
-    const dateInput = document.getElementById("update-date");
-    const textInput = document.getElementById("update-text");
-    const imageInput = document.getElementById("update-image");
-    const preview = document.getElementById("image-preview-container");
-
-    const providedDate = dateInput ? dateInput.value.trim() : "";
-    const date = providedDate || new Date().toLocaleDateString();
-    const text = textInput ? textInput.value.trim() : "";
-    if (!text) {
-      alert("Please enter update text.");
-      return;
-    }
-
-    const ok = await ensureProfile();
-    if (!ok) {
-      alert(`Could not create your member profile: ${lastProfileError || "unknown error"}`);
-      return;
-    }
-
-    const username = await getUsername(sessionUser.id);
-    const selectedFile = imageInput && imageInput.files ? imageInput.files[0] : null;
-    let imageUrl = null;
-
-    if (selectedFile) {
-      try {
-        imageUrl = await uploadPostImage(selectedFile);
-      } catch (error) {
-        alert(`Image upload failed: ${error.message}`);
+    try {
+      if (!sessionUser) {
+        alert("Please sign in on the login page first.");
         return;
       }
+
+      const dateInput = document.getElementById("update-date");
+      const textInput = document.getElementById("update-text");
+      const imageInput = document.getElementById("update-image");
+      const preview = document.getElementById("image-preview-container");
+
+      const providedDate = dateInput ? dateInput.value.trim() : "";
+      const date = providedDate || new Date().toLocaleDateString();
+      const text = textInput ? textInput.value.trim() : "";
+      if (!text) {
+        alert("Please enter update text.");
+        return;
+      }
+
+      const ok = await ensureProfile();
+      if (!ok) {
+        alert(`Could not create your member profile: ${lastProfileError || "unknown error"}`);
+        return;
+      }
+
+      const username = await getUsername(sessionUser.id);
+      const selectedFile = imageInput && imageInput.files ? imageInput.files[0] : null;
+      let imageUrl = null;
+
+      if (selectedFile) {
+        imageUrl = await uploadPostImage(selectedFile);
+      }
+
+      const payload = {
+        date,
+        text,
+        imageUrl: imageUrl,
+        imageData: null,
+        username
+      };
+
+      const { error } = await client
+        .from("posts")
+        .insert({ user_id: sessionUser.id, content: JSON.stringify(payload) });
+
+      if (error) {
+        alert("Failed to post update: " + error.message);
+        return;
+      }
+
+      if (dateInput) dateInput.value = "";
+      if (textInput) textInput.value = "";
+      if (imageInput) imageInput.value = "";
+      if (preview) preview.innerHTML = "";
+      window.currentImageData = null;
+
+      await loadUpdatesFromSupabase();
+      alert("Update posted!");
+    } catch (error) {
+      const message = String(error?.message || error || "");
+      alert(`Failed to post update: ${message || "Network request failed. Check connection and try again."}`);
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = submitBtn.dataset.originalText || "Post Update";
+      }
     }
-
-    const payload = {
-      date,
-      text,
-      imageUrl: imageUrl,
-      imageData: null,
-      username
-    };
-
-    const { error } = await client
-      .from("posts")
-      .insert({ user_id: sessionUser.id, content: JSON.stringify(payload) });
-
-    if (error) {
-      alert("Failed to post update: " + error.message);
-      return;
-    }
-
-    if (dateInput) dateInput.value = "";
-    if (textInput) textInput.value = "";
-    if (imageInput) imageInput.value = "";
-    if (preview) preview.innerHTML = "";
-    window.currentImageData = null;
-
-    await loadUpdatesFromSupabase();
-    alert("Update posted!");
   }
 
   function disableLegacyAdmin() {
@@ -1106,6 +1120,7 @@
 
     client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    window.addUpdateSupabase = addUpdateSupabase;
     window.addUpdate = addUpdateSupabase;
     window.deleteSupabasePost = deletePostSupabase;
     window.deleteSupabaseReply = deleteReplySupabase;
@@ -1125,12 +1140,14 @@
     const accountForm = document.getElementById("account-form");
     const accountPasswordForm = document.getElementById("account-password-form");
     const updatesFilterSelect = document.getElementById("updates-filter-select");
+    const postUpdateBtn = document.getElementById("post-update-btn");
 
     if (signupForm) signupForm.addEventListener("submit", signUp);
     if (signinForm) signinForm.addEventListener("submit", signIn);
     if (signoutBtn) signoutBtn.addEventListener("click", signOut);
     if (accountForm) accountForm.addEventListener("submit", updateAccount);
     if (accountPasswordForm) accountPasswordForm.addEventListener("submit", updateAccountPassword);
+    if (postUpdateBtn) postUpdateBtn.onclick = addUpdateSupabase;
     if (updatesFilterSelect) {
       updatesFilterSelect.addEventListener("change", (event) => {
         setUpdatesFilter(event.target.value);

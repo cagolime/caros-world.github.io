@@ -903,7 +903,7 @@
                     <input type="file" id="update-image" accept="image/*" style="display: none;" onchange="previewImage(this)">
                     <div id="image-preview-container"></div>
 
-                    <button onclick="addUpdate()">Post Update</button>
+                    <button type="button" id="post-update-btn" onclick="addUpdate()">Post Update</button>
                 </div>
                 <div class="window-resize-handle" data-resize-target="admin-panel" aria-hidden="true"></div>
             </div>
@@ -1791,6 +1791,10 @@
         }
 
         function addUpdate() {
+            if (typeof window.addUpdateSupabase === 'function') {
+                return window.addUpdateSupabase();
+            }
+
             if (!isLoggedIn) {
                 alert('Please login first!');
                 return;
