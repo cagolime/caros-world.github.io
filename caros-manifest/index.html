@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>angel_remix_2008.exe</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lamejs for MP3 encoding -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.all.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
+
+        :root {
+            --bg-color: #ffeff6; 
+            --window-bg: #ffffff; 
+            --primary: #f8adff; 
+            --secondary: #ffc2d1; 
+            --accent: #fff4e6; 
+            --mint: #e0f9f1;
+            --dark: #5c3d57; 
+            --border-chunky: 3px solid var(--dark);
+            
+            --color-0: #ffadad; 
+            --color-1: #ffd6a5; 
+            --color-2: #fdffb6; 
+            --color-3: #caffbf; 
+            --color-4: #9bf6ff; 
+        }
+
+        * {
+            text-transform: lowercase;
+            font-size: 13px !important;
+            font-family: 'Courier Prime', monospace !important;
+            letter-spacing: -0.02em;
+            font-weight: 400;
+        }
+
+        b, strong {
+            font-weight: 700;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                linear-gradient(var(--secondary) 1px, transparent 1px),
+                linear-gradient(90deg, var(--secondary) 1px, transparent 1px);
+            background-size: 32px 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+
+        .window {
+            background: var(--window-bg);
+            border: var(--border-chunky);
+            box-shadow: 8px 8px 0px var(--secondary);
+            width: 95%;
+            max-width: 1100px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .window::after {
+            content: "♥";
+            position: absolute;
+            bottom: -25px;
+            right: 0;
+            font-size: 24px !important;
+            color: var(--primary);
+        }
+
+        .title-bar {
+            background: var(--primary);
+            border-bottom: var(--border-chunky);
+            padding: 8px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--dark);
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 4px;
+        }
+
+        .window-controls span {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            border: 2px solid var(--dark);
+            text-align: center;
+            line-height: 14px;
+            cursor: pointer;
+        }
+
+        .menu-bar {
+            border-bottom: var(--border-chunky);
+            padding: 4px 10px;
+            display: flex;
+            gap: 15px;
+            background: var(--mint);
+            position: relative;
+        }
+
+        .menu-item {
+            cursor: pointer;
+            padding: 2px 4px;
+            border: 1px solid transparent;
+        }
+
+        .menu-item:hover {
+            background: #fff;
+            border: 1px solid var(--dark);
+        }
+        
+        .doc-popup {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0px;
+            background: white;
+            border: var(--border-chunky);
+            padding: 12px;
+            z-index: 100;
+            box-shadow: 4px 4px 0px var(--primary);
+            width: 320px;
+        }
+        
+        .menu-item:hover .doc-popup {
+            display: block;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 0;
+        }
+
+        .sidebar {
+            border-right: var(--border-chunky);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #fff;
+            background-image: radial-gradient(var(--bg-color) 25%, transparent 25%);
+            background-size: 4px 4px;
+        }
+
+        .status-box {
+            border: 2px solid var(--dark);
+            padding: 8px;
+            background: #fff;
+        }
+
+        .status-header {
+            background: var(--secondary);
+            color: var(--dark);
+            padding: 2px 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            border: 1px solid var(--dark);
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: #000;
+            border: var(--border-chunky);
+            overflow: hidden;
+        }
+
+        #webcam, #canvas-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: scaleX(-1);
+        }
+
+        .remix-area {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 280px; 
+            gap: 20px;
+            background: #fff;
+        }
+
+        .visualizer-card {
+            background: #fff;
+            border: var(--border-chunky);
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            position: relative;
+            min-height: 280px; 
+            grid-column: span 2;
+        }
+
+        #audio-visualizer {
+            width: 100%;
+            height: 60%; 
+            background: #fff;
+            border-bottom: 2px dashed var(--dark);
+        }
+
+        .finger-meters {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            height: 40%;
+            margin-top: 10px;
+        }
+
+        .meter-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .meter-bar {
+            width: 100%;
+            background: var(--accent);
+            border: 2px solid var(--dark);
+            position: relative;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .meter-fill {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            transition: height 0.1s steps(10);
+        }
+
+        #fill-0 { background: var(--color-0); }
+        #fill-1 { background: var(--color-1); }
+        #fill-2 { background: var(--color-2); }
+        #fill-3 { background: var(--color-3); }
+        #fill-4 { background: var(--color-4); }
+
+        .meter-fill.inactive {
+            background-color: #ccc !important;
+        }
+
+        .meter-label {
+            margin-top: 4px;
+            text-align: center;
+            line-height: 1.2;
+            width: 100%;
+        }
+
+        .meter-percent {
+            font-size: 10px !important;
+            display: block;
+        }
+
+        .btn {
+            background: #fff;
+            border: 2px solid var(--dark);
+            padding: 8px 12px; 
+            cursor: pointer;
+            box-shadow: 4px 4px 0px var(--dark);
+            transition: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-weight: 700;
+            text-align: center;
+            white-space: nowrap; 
+            word-break: keep-all; 
+            min-height: 44px; 
+        }
+
+        .btn:active {
+            box-shadow: 0px 0px 0px var(--dark);
+            transform: translate(4px, 4px);
+        }
+
+        .btn.primary {
+            background: var(--primary);
+        }
+
+        .btn.gemini {
+            background: var(--secondary);
+        }
+        
+        .btn.recording {
+            background: #ff4d4d !important;
+            color: #fff;
+        }
+
+        .control-panel {
+            background: var(--accent);
+            border: var(--border-chunky);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .art-panel {
+            background: var(--mint);
+            border: var(--border-chunky);
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+
+        #gemini-image-container {
+            flex-grow: 1;
+            background: #fff;
+            border: 2px solid var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 10px;
+            min-height: 200px;
+        }
+
+        #gemini-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            image-rendering: pixelated;
+        }
+
+        .footer-bar {
+            background: var(--dark);
+            padding: 6px 10px;
+            display: flex;
+            justify-content: space-between;
+            color: #fff;
+        }
+
+        #file-upload-label {
+            display: flex;
+            width: 100%;
+            text-align: center;
+            padding: 8px 12px;
+            border: 2px dashed var(--dark);
+            cursor: pointer;
+            background: #fff;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 4px;
+            white-space: nowrap;
+        }
+
+        #manifest-text-input {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid var(--dark);
+            margin-bottom: 10px;
+            outline: none;
+            background: #fff;
+        }
+
+        .instruction-step {
+            margin-bottom: 8px;
+            padding-left: 12px;
+            border-left: 2px solid var(--primary);
+        }
+
+        .pixel-sparkle {
+            position: absolute;
+            pointer-events: none;
+            color: var(--primary);
+            font-size: 16px !important;
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="window">
+        <div class="pixel-sparkle" style="top: 45px; left: 10px;">✦</div>
+        <div class="pixel-sparkle" style="top: 45px; right: 10px;">✧</div>
+
+        <div class="title-bar">
+            <span>// candy_remix.manifest : divine_demo</span>
+            <div class="window-controls">
+                <span>_</span>
+                <span>□</span>
+                <span>x</span>
+            </div>
+        </div>
+
+        <div class="menu-bar">
+            <span class="menu-item">
+                documentation ▾
+                <div class="doc-popup">
+                    <p class="font-bold mb-2">legal_manifest</p>
+                    <p class="mb-2">all code and design assets contained herein are proprietary.</p>
+                    <p>
+                        &copy; 2024 candy coated technology.<br>
+                        developed by caroline lousia.<br>
+                        in collaboration with gemini and b.
+                    </p>
+                    <p class="mt-2 opacity-70">manifested with love.</p>
+                </div>
+            </span>
+            <span class="menu-item">
+                instructions ▾
+                <div class="doc-popup" style="width: 400px;">
+                    <p class="font-bold mb-3">operator_guide.v1</p>
+                    <div class="instruction-step">
+                        <strong>01. audio_input</strong>
+                        import an .mp3 file using the playback panel. click 'play' to initialize the engine.
+                    </div>
+                    <div class="instruction-step">
+                        <strong>02. optical_link</strong>
+                        click 'activate_tracking' to engage your webcam and manifesting the halo.
+                    </div>
+                    <div class="instruction-step">
+                        <strong>03. divine_halo</strong>
+                        the halo tracks your head position via selfie segmentation, independent of hands.
+                    </div>
+                    <div class="instruction-step">
+                        <strong>04. dual_hand_mod</strong>
+                        hold up both hands to map the *distance* between matching fingertips to audio filters. 
+                    </div>
+                    <div class="instruction-step">
+                        <strong>05. record_&_export</strong>
+                        use 'record_set' to capture your performance, then 'export_remix' to download.
+                    </div>
+                </div>
+            </span>
+            <span class="ml-auto opacity-60">angel_energy: 111</span>
+        </div>
+
+        <div class="main-content">
+            <aside class="sidebar">
+                <div class="status-box">
+                    <div class="status-header">system_readout</div>
+                    <div class="space-y-1">
+                        <div>engine: <span id="engine-status" style="color: #ff00ff">offline</span></div>
+                        <div class="truncate">input: <span id="input-filename" style="color: #0000ff">null</span></div>
+                    </div>
+                </div>
+
+                <div class="video-container">
+                    <video id="webcam" autoplay playsinline></video>
+                    <canvas id="canvas-overlay"></canvas>
+                </div>
+                
+                <button id="start-cam" class="btn primary w-full">activate_tracking</button>
+
+                <div class="status-box mt-2">
+                    <div class="status-header">activity_log</div>
+                    <div id="log-text" class="opacity-60 min-h-[40px]">
+                        awaiting_input...
+                    </div>
+                </div>
+            </aside>
+
+            <main class="remix-area">
+                <div class="visualizer-card">
+                    <canvas id="audio-visualizer"></canvas>
+                    
+                    <div class="finger-meters">
+                        <div class="meter-col">
+                            <div class="meter-bar"><div id="fill-0" class="meter-fill inactive" style="height: 0%"></div></div>
+                            <div class="meter-label">thumb<span id="val-0" class="meter-percent">[off]</span></div>
+                        </div>
+                        <div class="meter-col">
+                            <div class="meter-bar"><div id="fill-1" class="meter-fill inactive" style="height: 0%"></div></div>
+                            <div class="meter-label">index<span id="val-1" class="meter-percent">[off]</span></div>
+                        </div>
+                        <div class="meter-col">
+                            <div class="meter-bar"><div id="fill-2" class="meter-fill inactive" style="height: 0%"></div></div>
+                            <div class="meter-label">middle<span id="val-2" class="meter-percent">[off]</span></div>
+                        </div>
+                        <div class="meter-col">
+                            <div class="meter-bar"><div id="fill-3" class="meter-fill inactive" style="height: 0%"></div></div>
+                            <div class="meter-label">ring<span id="val-3" class="meter-percent">[off]</span></div>
+                        </div>
+                        <div class="meter-col">
+                            <div class="meter-bar"><div id="fill-4" class="meter-fill inactive" style="height: 0%"></div></div>
+                            <div class="meter-label">pinky<span id="val-4" class="meter-percent">[off]</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-panel">
+                    <div class="status-header">playback_controls</div>
+                    
+                    <input type="file" id="file-input" class="hidden" accept=".mp3">
+                    <label for="file-input" id="file-upload-label" class="btn">
+                        import_audio
+                    </label>
+
+                    <button id="play-btn" class="btn primary w-full">play_audio</button>
+                    
+                    <div class="flex flex-col gap-2 mt-auto">
+                        <button id="record-btn" class="btn w-full">record_set</button>
+                        <button id="export-btn" class="btn w-full opacity-50" disabled>export_remix</button>
+                    </div>
+                </div>
+
+                <div class="art-panel">
+                    <div class="status-header">
+                        <span>visual_output</span>
+                        <div class="flex items-center gap-2">
+                            <span id="ai-status" style="font-size: 9px !important">idle</span>
+                            <div id="ai-loading" class="hidden">...</div>
+                        </div>
+                    </div>
+                    
+                    <input type="text" id="manifest-text-input" placeholder="text_overlay..." maxlength="20">
+                    
+                    <div id="gemini-image-container">
+                        <span class="opacity-40 text-center px-4">awaiting_data</span>
+                    </div>
+                    
+                    <button id="generate-visual-btn" class="btn gemini w-full">manifest_art</button>
+                </div>
+            </main>
+        </div>
+
+        <div class="footer-bar">
+            <div>&gt; <span id="footer-status">initialized</span></div>
+            <div id="credits" style="font-weight: 700">made_with_divine_intent</div>
+            <div id="clock">00:00:00</div>
+        </div>
+    </div>
+
+    <audio id="source-audio" crossorigin="anonymous" class="hidden"></audio>
+
+    <script>
+        const apiKey = ""; 
+        const videoElement = document.getElementById('webcam');
+        const canvasElement = document.getElementById('canvas-overlay');
+        const canvasCtx = canvasElement.getContext('2d');
+        const sourceAudio = document.getElementById('source-audio');
+        const engineStatus = document.getElementById('engine-status');
+        const aiLoading = document.getElementById('ai-loading');
+        const aiStatus = document.getElementById('ai-status');
+        const manifestTextInput = document.getElementById('manifest-text-input');
+        
+        const CANDY_COLORS = ['#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff'];
+
+        let audioCtx;
+        let sourceNode;
+        let analyzer;
+        let recorder;
+        let streamDestination;
+        let audioChunks = [];
+        
+        let fingerBands = []; 
+        const FINGER_FREQS = [150, 600, 1500, 4000, 12000];
+        const fingerIntensities = [0, 0, 0, 0, 0];
+        let haloAnimFrame = 0;
+        let headPosition = { x: 320, y: 240, active: false };
+
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString().toLowerCase();
+        }, 1000);
+
+        async function fetchWithRetry(url, options, retries = 5) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok) return await response.json();
+                } catch (e) {
+                    if (i === retries - 1) throw e;
+                }
+                await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000));
+            }
+        }
+
+        async function analyzeVibe() {
+            const fileName = document.getElementById('input-filename').innerText || "unknown_signal";
+            const userText = manifestTextInput.value.trim();
+            
+            let energyString = "neutral";
+            if (analyzer) {
+                const data = new Uint8Array(analyzer.frequencyBinCount);
+                analyzer.getByteFrequencyData(data);
+                const avg = data.reduce((a, b) => a + b) / data.length;
+                if (avg > 100) energyString = "high-energy";
+                else if (avg < 40) energyString = "ambient";
+                else energyString = "balanced";
+            }
+
+            const activeFingers = fingerIntensities.map((val, i) => val > 0.1 ? `Band ${i} active` : null).filter(Boolean).join(", ");
+
+            const systemPrompt = "You are a musical visualist for a 2008 pixel art manifestation blog. Generate a prompt for a matte, simple image. Keywords: pixel art, MS Paint, soft pastels, angelic, 2008 internet, low-poly graphics.";
+            const userQuery = `Song: ${fileName}. Energy: ${energyString}. Text: "${userText || 'divine'}". Remix State: ${activeFingers || 'idle'}. Create a 1-sentence prompt for a simple pastel MS Paint industrial artwork with text overlay.`;
+
+            try {
+                const result = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: userQuery }] }],
+                        systemInstruction: { parts: [{ text: systemPrompt }] }
+                    })
+                });
+                return result.candidates?.[0]?.content?.parts?.[0]?.text || "matte pastel pixel art";
+            } catch (e) {
+                return "simple pastel MS Paint illustration, angel core, pixel stars";
+            }
+        }
+
+        async function generateImage() {
+            aiLoading.classList.remove('hidden');
+            aiStatus.innerText = "loading";
+            
+            try {
+                const vibePrompt = await analyzeVibe();
+                aiStatus.innerText = "creating";
+
+                const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        instances: { prompt: vibePrompt }, 
+                        parameters: { sampleCount: 1 } 
+                    })
+                });
+                
+                aiLoading.classList.add('hidden');
+                aiStatus.innerText = "done";
+                return `data:image/png;base64,${response.predictions[0].bytesBase64Encoded}`;
+            } catch (e) {
+                aiLoading.classList.add('hidden');
+                aiStatus.innerText = "fail";
+                return null;
+            }
+        }
+
+        document.getElementById('generate-visual-btn').addEventListener('click', async () => {
+            const imgData = await generateImage();
+            if (imgData) {
+                const container = document.getElementById('gemini-image-container');
+                container.innerHTML = `<img src="${imgData}" alt="art">`;
+            }
+        });
+
+        async function initAudio() {
+            if (audioCtx) {
+                if (audioCtx.state === 'suspended') await audioCtx.resume();
+                return;
+            }
+            
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                analyzer = audioCtx.createAnalyser();
+                analyzer.fftSize = 512;
+                streamDestination = audioCtx.createMediaStreamDestination();
+
+                FINGER_FREQS.forEach((freq, i) => {
+                    const filter = audioCtx.createBiquadFilter();
+                    filter.type = 'peaking';
+                    filter.frequency.value = freq;
+                    filter.Q.value = 1.5;
+                    filter.gain.value = 0;
+                    fingerBands.push({ filter, freq });
+                });
+
+                sourceNode = audioCtx.createMediaElementSource(sourceAudio);
+                let lastNode = sourceNode;
+                
+                fingerBands.forEach(band => {
+                    lastNode.connect(band.filter);
+                    lastNode = band.filter;
+                });
+
+                lastNode.connect(analyzer);
+                analyzer.connect(audioCtx.destination);
+                analyzer.connect(streamDestination);
+                
+                recorder = new MediaRecorder(streamDestination.stream);
+                recorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunks.push(e.data); };
+                recorder.onstop = () => {
+                    const exportBtn = document.getElementById('export-btn');
+                    exportBtn.classList.remove('opacity-50');
+                    exportBtn.disabled = false;
+                    document.getElementById('log-text').innerText = "rec_finished. ready_for_export.";
+                };
+
+                engineStatus.innerText = "online";
+                engineStatus.style.color = "#ff00ff";
+            } catch (e) { console.warn(e); }
+        }
+
+        document.getElementById('record-btn').addEventListener('click', async () => {
+            await initAudio();
+            if (!recorder) return;
+            if (recorder.state === 'inactive') {
+                audioChunks = [];
+                recorder.start();
+                document.getElementById('record-btn').innerText = "stop_rec";
+                document.getElementById('record-btn').classList.add('recording');
+                document.getElementById('log-text').innerText = "manifesting_audio...";
+            } else {
+                recorder.stop();
+                document.getElementById('record-btn').innerText = "record_set";
+                document.getElementById('record-btn').classList.remove('recording');
+            }
+        });
+
+        async function convertToMp3(chunks) {
+            const blob = new Blob(chunks);
+            const arrayBuffer = await blob.arrayBuffer();
+            const audioData = await audioCtx.decodeAudioData(arrayBuffer);
+            const channels = audioData.numberOfChannels;
+            const mp3encoder = new lamejs.Mp3Encoder(channels, audioData.sampleRate, 128);
+            const mp3Data = [];
+            const samplesL = audioData.getChannelData(0);
+            const samplesR = channels > 1 ? audioData.getChannelData(1) : samplesL;
+            const floatTo16Bit = (f32) => {
+                let s = Math.max(-1, Math.min(1, f32));
+                return s < 0 ? s * 0x8000 : s * 0x7FFF;
+            };
+            const l16 = new Int16Array(samplesL.length);
+            const r16 = new Int16Array(samplesR.length);
+            for(let i=0; i<samplesL.length; i++) {
+                l16[i] = floatTo16Bit(samplesL[i]);
+                r16[i] = floatTo16Bit(samplesR[i]);
+            }
+            const sampleBlockSize = 1152;
+            for (let i = 0; i < l16.length; i += sampleBlockSize) {
+                const mp3buf = mp3encoder.encodeBuffer(l16.subarray(i, i + sampleBlockSize), r16.subarray(i, i + sampleBlockSize));
+                if (mp3buf.length > 0) mp3Data.push(mp3buf);
+            }
+            const endBuf = mp3encoder.flush();
+            if (endBuf.length > 0) mp3Data.push(endBuf);
+            return new Blob(mp3Data, { type: 'audio/mp3' });
+        }
+
+        document.getElementById('export-btn').addEventListener('click', async () => {
+            if (audioChunks.length === 0) return;
+            document.getElementById('export-btn').innerText = "encoding...";
+            const mp3Blob = await convertToMp3(audioChunks);
+            const url = URL.createObjectURL(mp3Blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `angel_remix_${Date.now()}.mp3`;
+            a.click();
+            document.getElementById('export-btn').innerText = "export_remix";
+            document.getElementById('log-text').innerText = "data_transmitted.";
+        });
+
+        function updateFingerRemix(index, intensity, isFingerUp) {
+            if (!audioCtx || fingerBands.length === 0) return;
+            const finalIntensity = isFingerUp ? Math.max(0, Math.min(1, intensity)) : 0;
+            fingerIntensities[index] = finalIntensity;
+            const band = fingerBands[index];
+            band.filter.gain.setTargetAtTime((finalIntensity * 50) - 25, audioCtx.currentTime, 0.1);
+            document.getElementById(`val-${index}`).innerText = isFingerUp ? ` [${Math.round(finalIntensity * 100)}%]` : " [off]";
+            const fill = document.getElementById(`fill-${index}`);
+            fill.style.height = (finalIntensity * 100) + '%';
+            if (isFingerUp) fill.classList.remove('inactive'); else fill.classList.add('inactive');
+        }
+
+        function drawHalo(x, y, scale = 1) {
+            haloAnimFrame++;
+            const floatY = y - 60 + Math.sin(haloAnimFrame * 0.05) * 5;
+            const width = 80 * scale;
+            const height = 20 * scale;
+
+            // Halo glow (pixel style)
+            canvasCtx.beginPath();
+            canvasCtx.ellipse(x, floatY, width, height, 0, 0, Math.PI * 2);
+            canvasCtx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            canvasCtx.lineWidth = 6;
+            canvasCtx.setLineDash([10, 5]); 
+            canvasCtx.stroke();
+            canvasCtx.setLineDash([]);
+
+            // Main halo ring
+            canvasCtx.beginPath();
+            canvasCtx.ellipse(x, floatY, width, height, 0, 0, Math.PI * 2);
+            canvasCtx.strokeStyle = '#f8adff';
+            canvasCtx.lineWidth = 3;
+            canvasCtx.stroke();
+
+            // Pixel sparkles
+            for(let i=0; i<4; i++) {
+                const angle = (haloAnimFrame * 0.02) + (i * Math.PI / 2);
+                const sx = x + Math.cos(angle) * (width + 10);
+                const sy = floatY + Math.sin(angle) * (height + 5);
+                canvasCtx.fillStyle = CANDY_COLORS[i % CANDY_COLORS.length];
+                canvasCtx.fillRect(sx-2, sy-2, 4, 4);
+            }
+        }
+
+        // --- TRACKING INITIALIZATION ---
+
+        const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
+        hands.setOptions({ maxNumHands: 2, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+
+        const selfieSegmentation = new SelfieSegmentation({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}` });
+        selfieSegmentation.setOptions({ modelSelection: 1 });
+
+        // SEGMENTATION HANDLER: Finds the "top" of the person mask for halo positioning
+        selfieSegmentation.onResults((results) => {
+            if (!results.segmentationMask) return;
+            
+            // We need to sample the mask to find the highest pixel of the person
+            const mask = results.segmentationMask;
+            const w = mask.width;
+            const h = mask.height;
+            
+            // Create a temp canvas to read mask pixels (efficiently)
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 64; // Low res for speed
+            tempCanvas.height = 48;
+            const tCtx = tempCanvas.getContext('2d');
+            tCtx.drawImage(mask, 0, 0, 64, 48);
+            const imageData = tCtx.getImageData(0, 0, 64, 48).data;
+            
+            let topX = 32;
+            let topY = 48;
+            let found = false;
+
+            // Scan low-res mask for highest point (alpha channel in mask data)
+            for (let y = 0; y < 48; y++) {
+                for (let x = 0; x < 64; x++) {
+                    const alpha = imageData[(y * 64 + x) * 4 + 3]; // segmentation mask is usually RGBA
+                    if (alpha > 128) { // If pixel is likely person
+                        topX = x;
+                        topY = y;
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) break;
+            }
+
+            if (found) {
+                headPosition.x = (topX / 64) * canvasElement.width;
+                headPosition.y = (topY / 48) * canvasElement.height;
+                headPosition.active = true;
+            } else {
+                headPosition.active = false;
+            }
+        });
+
+        // HANDS HANDLER: Handles audio remixing logic
+        hands.onResults((results) => {
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            
+            // Draw Halo based on Segmentation result
+            if (headPosition.active) {
+                drawHalo(headPosition.x, headPosition.y);
+            }
+
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length === 2) {
+                const h1 = results.multiHandLandmarks[0];
+                const h2 = results.multiHandLandmarks[1];
+                const tips = [4, 8, 12, 16, 20];
+                
+                tips.forEach((tipIdx, i) => {
+                    const d = Math.sqrt(Math.pow(h1[tipIdx].x - h2[tipIdx].x, 2) + Math.pow(h1[tipIdx].y - h2[tipIdx].y, 2));
+                    const intensity = Math.min(1, d / 0.4);
+                    const isUp = h1[tipIdx].y < h1[tipIdx-2].y || h2[tipIdx].y < h2[tipIdx-2].y;
+                    
+                    if (isUp) {
+                        canvasCtx.beginPath();
+                        canvasCtx.moveTo(h1[tipIdx].x * canvasElement.width, h1[tipIdx].y * canvasElement.height);
+                        canvasCtx.lineTo(h2[tipIdx].x * canvasElement.width, h2[tipIdx].y * canvasElement.height);
+                        canvasCtx.strokeStyle = CANDY_COLORS[i];
+                        canvasCtx.lineWidth = 2;
+                        canvasCtx.stroke();
+                        canvasCtx.fillStyle = '#fff';
+                        canvasCtx.fillRect(h1[tipIdx].x * canvasElement.width - 2, h1[tipIdx].y * canvasElement.height - 2, 4, 4);
+                        canvasCtx.fillRect(h2[tipIdx].x * canvasElement.width - 2, h2[tipIdx].y * canvasElement.height - 2, 4, 4);
+                    }
+                    updateFingerRemix(i, intensity, isUp);
+                });
+                document.getElementById('log-text').innerText = "dual_link: sync_active.";
+            } else {
+                fingerIntensities.forEach((v, i) => updateFingerRemix(i, 0, false));
+                if (headPosition.active) {
+                    document.getElementById('log-text').innerText = "halo_lock: manifested.";
+                } else {
+                    document.getElementById('log-text').innerText = "awaiting_signal...";
+                }
+            }
+            canvasCtx.restore();
+        });
+
+        const camera = new Camera(videoElement, {
+            onFrame: async () => { 
+                await selfieSegmentation.send({image: videoElement});
+                await hands.send({image: videoElement}); 
+            },
+            width: 640, height: 480
+        });
+
+        document.getElementById('start-cam').addEventListener('click', () => {
+            camera.start();
+            document.getElementById('start-cam').innerText = "tracking_engaged";
+        });
+
+        document.getElementById('file-input').addEventListener('change', (e) => {
+            const f = e.target.files[0];
+            if (f) {
+                sourceAudio.src = URL.createObjectURL(f);
+                document.getElementById('input-filename').innerText = f.name.toLowerCase();
+                initAudio();
+            }
+        });
+
+        document.getElementById('play-btn').addEventListener('click', async () => {
+            await initAudio();
+            if (!sourceAudio.src) return;
+            if (sourceAudio.paused) {
+                sourceAudio.play().then(() => {
+                    document.getElementById('play-btn').innerText = "stop_audio";
+                    drawVisualizer();
+                });
+            } else {
+                sourceAudio.pause();
+                document.getElementById('play-btn').innerText = "play_audio";
+            }
+        });
+
+        const vizCtx = document.getElementById('audio-visualizer').getContext('2d');
+        function drawVisualizer() {
+            if (sourceAudio.paused || !analyzer) return;
+            requestAnimationFrame(drawVisualizer);
+            const data = new Uint8Array(analyzer.frequencyBinCount);
+            analyzer.getByteFrequencyData(data);
+            const v = document.getElementById('audio-visualizer');
+            v.width = v.clientWidth; v.height = v.clientHeight;
+            vizCtx.clearRect(0, 0, v.width, v.height);
+            const w = (v.width / data.length) * 2.5;
+            let x = 0;
+            for (let i = 0; i < data.length; i++) {
+                const h = (data[i] / 255) * v.height;
+                vizCtx.fillStyle = CANDY_COLORS[Math.floor((i/data.length)*5)];
+                vizCtx.fillRect(x, v.height - h, w, h);
+                x += w + 2;
+            }
+        }
+
+        window.onload = () => {
+            canvasElement.width = 640;
+            canvasElement.height = 480;
+        };
+    </script>
+</body>
+</html>

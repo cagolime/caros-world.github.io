@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>caros.world // hand sculpture widget</title>
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <style>
+        /* 2008 Blog Aesthetic / Handmade Vibe */
+        body {
+            background-color: #e9e7e2;
+            background-image: repeating-linear-gradient(45deg, #e9e7e2, #e9e7e2 10px, #e2dfd8 10px, #e2dfd8 20px);
+            font-family: 'Verdana', Tahoma, sans-serif;
+            font-size: 10px;
+            color: #555;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            cursor: crosshair;
+        }
+
+        /* The standalone widget container */
+        #widget-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: row;
+            background: #ffffff;
+            border: 1px solid #999;
+            box-shadow: 5px 5px 0px #ff99cc; 
+            padding: 8px;
+            width: 400px; 
+            height: 680px;
+            box-sizing: border-box;
+        }
+
+        .tape {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%) rotate(-2deg);
+            width: 80px;
+            height: 20px;
+            background: rgba(255, 255, 200, 0.7);
+            border: 1px solid rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        /* Tabs styling */
+        .tab-bar {
+            display: flex;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+        .tab-btn {
+            flex: 1;
+            font-size: 8px;
+            padding: 6px 0;
+            background: #eee;
+            border: 1px solid #ccc;
+            border-bottom: none;
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+        }
+        .tab-btn.active {
+            background: #fff;
+            color: #ff6699;
+            border-top: 2px solid #ff6699;
+        }
+        .tab-content {
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .tab-content.active {
+            display: flex;
+        }
+
+        /* Sidebar */
+        #sidebar {
+            width: 80px;
+            border-right: 1px dotted #ccc;
+            padding-right: 8px;
+            margin-right: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .sidebar-title {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 8px;
+            color: #ff6699;
+            letter-spacing: 1px;
+            border-bottom: 1px dashed #ff6699;
+            padding-bottom: 3px;
+            margin-bottom: 5px;
+        }
+
+        .btn-ui {
+            background: #f4f4f4;
+            border: 1px solid #ccc;
+            font-family: 'Verdana', sans-serif;
+            font-size: 8px;
+            padding: 5px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.1s;
+        }
+        .btn-ui:hover { background: #ffeef5; }
+        .btn-ui.active {
+            background: #ffe6f0;
+            border-left: 3px solid #ff6699;
+            color: #333;
+            font-weight: bold;
+        }
+
+        #tab-fx .btn-ui.active, #tab-lights .btn-ui.active {
+            border-left-color: #00cccc;
+            background: #e6ffff;
+        }
+
+        /* Main vertical column */
+        #main-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow: hidden;
+        }
+
+        #header-banner {
+            background: #333;
+            color: #fff;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .marquee-box {
+            background: #ffffcc;
+            border: 1px dashed #cccc66;
+            padding: 2px;
+            font-family: 'Courier New', monospace;
+            font-size: 8px;
+        }
+
+        /* Viewports */
+        .viewport-container {
+            border: 1px inset #bbb;
+            background: #000;
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        #camera-section {
+            height: 180px; 
+            flex-shrink: 0;
+        }
+
+        #3d-section {
+            flex-grow: 1; 
+            background: #e6e6fa; 
+            background-image: 
+                linear-gradient(rgba(255,255,255,.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.2) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        #output_canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; 
+            background: #000;
+            transform: scaleX(-1);
+        }
+
+        #three_canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        #loading-text {
+            position: absolute;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            z-index: 5;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            animation: blink 1s step-end infinite;
+            text-align: center;
+        }
+
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .status-bar {
+            font-size: 7px;
+            color: #999;
+            text-align: right;
+            padding: 2px;
+            border-top: 1px dotted #ccc;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="widget-wrapper">
+        <div class="tape"></div>
+
+        <div id="sidebar">
+            <div class="tab-bar">
+                <button class="tab-btn active" data-target="tab-shapes">SHP</button>
+                <button class="tab-btn" data-target="tab-fx">FX</button>
+                <button class="tab-btn" data-target="tab-lights">LGT</button>
+            </div>
+
+            <div class="tab-content active" id="tab-shapes">
+                <div class="sidebar-title">Shapes</div>
+                <button class="btn-ui shape-btn active" data-shape="box">Cube</button>
+                <button class="btn-ui shape-btn" data-shape="sphere">Sphere</button>
+                <button class="btn-ui shape-btn" data-shape="cylinder">Cylndr</button>
+                <button class="btn-ui shape-btn" data-shape="torus">Torus</button>
+                <button class="btn-ui shape-btn" data-shape="knot">Knot</button>
+            </div>
+
+            <div class="tab-content" id="tab-fx">
+                <div class="sidebar-title">Effects</div>
+                <button class="btn-ui fx-btn active" data-fx="none">Solid</button>
+                <button class="btn-ui fx-btn" data-fx="wireframe">Wireframe</button>
+                <button class="btn-ui fx-btn" data-fx="ghost">Ghostly</button>
+                <button class="btn-ui fx-btn" data-fx="disco">Disco</button>
+            </div>
+
+            <div class="tab-content" id="tab-lights">
+                <div class="sidebar-title">Lighting</div>
+                <button class="btn-ui light-btn active" data-light="retro">Retro</button>
+                <button class="btn-ui light-btn" data-light="harsh">Harsh</button>
+                <button class="btn-ui light-btn" data-light="spooky">Spooky</button>
+                <button class="btn-ui light-btn" data-light="neon">Neon</button>
+            </div>
+            
+            <div style="margin-top: auto; text-align: center;">
+                <span style="font-size: 16px; opacity: 0.3;">✿</span>
+            </div>
+        </div>
+
+        <div id="main-col">
+            <div id="header-banner">
+                <span>caros.world</span>
+                <span>:: HAND_SCULPT ::</span>
+            </div>
+
+            <div class="marquee-box">
+                <marquee scrollamount="2">
+                    2 HANDS: SHAPE FLOATS BETWEEN | L-INDEX: SIZE | R-INDEX: ROTATION | TABS: MENU
+                </marquee>
+            </div>
+
+            <div class="viewport-container" id="camera-section">
+                <div id="loading-text">LOAD_WEBCAM...</div>
+                <video id="input_video" autoplay playsinline style="display:none"></video>
+                <canvas id="output_canvas"></canvas>
+            </div>
+
+            <div class="viewport-container" id="3d-section">
+                <canvas id="three_canvas"></canvas>
+            </div>
+
+            <div class="status-bar" id="status-text">
+                connecting...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- THREE.JS ---
+        const threeCanvas = document.getElementById('three_canvas');
+        const container3D = document.getElementById('3d-section');
+        const renderer = new THREE.WebGLRenderer({ canvas: threeCanvas, alpha: true, antialias: true });
+        
+        const scene = new THREE.Scene();
+        const camera3D = new THREE.PerspectiveCamera(45, container3D.clientWidth / container3D.clientHeight, 0.1, 100);
+        camera3D.position.z = 7; // Moved back slightly for better visibility of tracked position
+
+        function resize3D() {
+            const w = container3D.clientWidth;
+            const h = container3D.clientHeight;
+            renderer.setSize(w, h);
+            camera3D.aspect = w / h;
+            camera3D.updateProjectionMatrix();
+        }
+        window.addEventListener('resize', resize3D);
+        resize3D();
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xff99cc, 0.8);
+        directionalLight.position.set(5, 5, 5);
+        scene.add(directionalLight);
+        const directionalLight2 = new THREE.DirectionalLight(0x00ffff, 0.4);
+        directionalLight2.position.set(-5, 0, -5);
+        scene.add(directionalLight2);
+
+        const lightThemes = {
+            retro: () => {
+                ambientLight.color.setHex(0xffffff); ambientLight.intensity = 0.6;
+                directionalLight.color.setHex(0xff99cc); directionalLight.intensity = 0.8;
+                directionalLight2.color.setHex(0x00ffff); directionalLight2.intensity = 0.4;
+            },
+            harsh: () => {
+                ambientLight.color.setHex(0x444444); ambientLight.intensity = 0.2;
+                directionalLight.color.setHex(0xffffff); directionalLight.intensity = 1.5;
+                directionalLight2.color.setHex(0x222222); directionalLight2.intensity = 0.1;
+            },
+            spooky: () => {
+                ambientLight.color.setHex(0x111111); ambientLight.intensity = 0.1;
+                directionalLight.color.setHex(0xff5500); directionalLight.intensity = 1.0;
+                directionalLight2.color.setHex(0x00ff00); directionalLight2.intensity = 0.6;
+            },
+            neon: () => {
+                ambientLight.color.setHex(0x220044); ambientLight.intensity = 0.4;
+                directionalLight.color.setHex(0xcc00ff); directionalLight.intensity = 1.2;
+                directionalLight2.color.setHex(0x00ffcc); directionalLight2.intensity = 1.0;
+            }
+        };
+
+        const geometries = {
+            box: new THREE.BoxGeometry(1.5, 1.5, 1.5),
+            sphere: new THREE.SphereGeometry(1, 32, 32),
+            cylinder: new THREE.CylinderGeometry(0.8, 0.8, 2, 32),
+            torus: new THREE.TorusGeometry(0.8, 0.3, 16, 32),
+            knot: new THREE.TorusKnotGeometry(0.6, 0.2, 100, 16)
+        };
+
+        const material = new THREE.MeshPhongMaterial({ 
+            color: 0xffffff, 
+            flatShading: true,
+            transparent: false,
+            opacity: 1.0
+        });
+        let currentMesh = new THREE.Mesh(geometries.box, material);
+        scene.add(currentMesh);
+
+        // UI Logic
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.target).classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('.shape-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentMesh.geometry = geometries[btn.dataset.shape];
+            });
+        });
+
+        let currentFx = 'none';
+        document.querySelectorAll('.fx-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.fx-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFx = btn.dataset.fx;
+                material.wireframe = false;
+                material.transparent = false;
+                material.opacity = 1.0;
+                material.emissive.setHex(0x000000); 
+                material.color.setHex(0xffffff);
+
+                if (currentFx === 'wireframe') {
+                    material.wireframe = true;
+                    material.emissive.setHex(0xaaaaaa); 
+                } else if (currentFx === 'ghost') {
+                    material.transparent = true;
+                    material.opacity = 0.4;
+                }
+            });
+        });
+
+        document.querySelectorAll('.light-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.light-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                lightThemes[btn.dataset.light]();
+            });
+        });
+
+        // Tracking state
+        let targetScaleY = 1, targetScaleX = 1, targetRotX = 0, targetRotY = 0;
+        let targetPosX = 0, targetPosY = 0, hue = 0;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (currentFx === 'disco') {
+                hue += 0.005;
+                material.color.setHSL(hue % 1, 0.7, 0.6);
+            }
+            
+            // Smoothed movement
+            currentMesh.position.x += (targetPosX - currentMesh.position.x) * 0.1;
+            currentMesh.position.y += (targetPosY - currentMesh.position.y) * 0.1;
+            currentMesh.scale.y += (targetScaleY - currentMesh.scale.y) * 0.1;
+            currentMesh.scale.x += (targetScaleX - currentMesh.scale.x) * 0.1;
+            currentMesh.scale.z = currentMesh.scale.x;
+            currentMesh.rotation.x += (targetRotX - currentMesh.rotation.x) * 0.1;
+            currentMesh.rotation.y += (targetRotY - currentMesh.rotation.y) * 0.1;
+
+            if (targetRotX === 0 && targetRotY === 0) {
+                currentMesh.rotation.y += 0.005;
+            }
+            renderer.render(scene, camera3D);
+        }
+        animate();
+
+        // --- MEDIAPIPE ---
+        const videoElement = document.getElementById('input_video');
+        const canvasElement = document.getElementById('output_canvas');
+        const canvasCtx = canvasElement.getContext('2d');
+        const statusText = document.getElementById('status-text');
+
+        function onResults(results) {
+            document.getElementById('loading-text').style.display = 'none';
+            statusText.innerText = 'tracking...';
+            
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                let midX = 0, midY = 0;
+                
+                // Calculate average position of all detected hands for the midpoint
+                results.multiHandLandmarks.forEach(hand => {
+                    const palmBase = hand[0];
+                    midX += palmBase.x;
+                    midY += palmBase.y;
+                });
+
+                midX /= results.multiHandLandmarks.length;
+                midY /= results.multiHandLandmarks.length;
+
+                // Map normalized 0-1 coordinates to Three.js space (-3 to 3 approx)
+                // We flip X because camera is mirrored
+                targetPosX = (0.5 - midX) * 8; 
+                targetPosY = (0.5 - midY) * 6;
+
+                // Individual Hand Logic for transformation
+                for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+                    const landmarks = results.multiHandLandmarks[i];
+                    const label = results.multiHandedness[i].label; 
+                    const indexTip = landmarks[8];
+
+                    drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {color: '#ff6699', lineWidth: 1});
+                    drawLandmarks(canvasCtx, landmarks, {color: '#ffffff', radius: 1});
+
+                    if (label === 'Right') { // Camera Mirror: User Left Hand
+                        targetScaleY = 0.5 + (1.0 - indexTip.y) * 3.0;
+                        targetScaleX = 0.5 + (indexTip.x) * 2.0;
+                    } else { // Camera Mirror: User Right Hand
+                        targetRotY = (indexTip.x - 0.5) * Math.PI * 2;
+                        targetRotX = (indexTip.y - 0.5) * Math.PI * 2;
+                    }
+                }
+            } else {
+                statusText.innerText = 'waiting...';
+            }
+            canvasCtx.restore();
+        }
+
+        const hands = new Hands({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`});
+        hands.setOptions({ maxNumHands: 2, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+        hands.onResults(onResults);
+
+        const camera = new Camera(videoElement, {
+            onFrame: async () => { await hands.send({image: videoElement}); },
+            width: 320, height: 180
+        });
+        camera.start();
+
+        setTimeout(resize3D, 500);
+    </script>
+</body>
+</html>

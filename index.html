@@ -239,7 +239,9 @@
             display: none;
         }
 
-        #mixer-window {
+        #mixer-window,
+        #hand-widget-window,
+        #manifest-window {
             display: none;
         }
 
@@ -247,11 +249,15 @@
             display: block;
         }
 
-        body.page-home-active #mixer-window.is-open {
+        body.page-home-active #mixer-window.is-open,
+        body.page-home-active #hand-widget-window.is-open,
+        body.page-home-active #manifest-window.is-open {
             display: block;
         }
 
-        body.page-home-active #mixer-window.is-closing {
+        body.page-home-active #mixer-window.is-closing,
+        body.page-home-active #hand-widget-window.is-closing,
+        body.page-home-active #manifest-window.is-closing {
             display: block;
         }
 
@@ -705,7 +711,11 @@
             body.page-home-active #session-bar,
             body.page-home-active #featured-widget,
             body.page-home-active #mixer-window.is-open,
-            body.page-home-active #mixer-window.is-closing {
+            body.page-home-active #mixer-window.is-closing,
+            body.page-home-active #hand-widget-window.is-open,
+            body.page-home-active #hand-widget-window.is-closing,
+            body.page-home-active #manifest-window.is-open,
+            body.page-home-active #manifest-window.is-closing {
                 position: fixed;
                 width: 320px;
                 margin-top: 0;
@@ -719,7 +729,9 @@
                 width: 320px;
             }
 
-            body.page-home-active #mixer-window.is-open {
+            body.page-home-active #mixer-window.is-open,
+            body.page-home-active #hand-widget-window.is-open,
+            body.page-home-active #manifest-window.is-open {
                 width: min(1520px, calc(100vw - 32px));
                 height: min(1100px, calc(100vh - 32px));
                 z-index: 1500;
@@ -727,7 +739,9 @@
                 animation: mixer-window-open 180ms ease-out;
             }
 
-            body.page-home-active #mixer-window.is-closing {
+            body.page-home-active #mixer-window.is-closing,
+            body.page-home-active #hand-widget-window.is-closing,
+            body.page-home-active #manifest-window.is-closing {
                 width: min(1520px, calc(100vw - 32px));
                 height: min(1100px, calc(100vh - 32px));
                 z-index: 1500;
@@ -749,7 +763,9 @@
             #admin-panel .admin-title,
             body.page-home-active #session-bar .section-title,
             body.page-home-active #featured-widget .section-title,
-            body.page-home-active #mixer-window .section-title {
+            body.page-home-active #mixer-window .section-title,
+            body.page-home-active #hand-widget-window .section-title,
+            body.page-home-active #manifest-window .section-title {
                 cursor: move;
             }
 
@@ -757,10 +773,14 @@
             body.page-home-active #session-bar .section-content,
             body.page-home-active #featured-widget .section-content,
             body.page-home-active #mixer-window .section-content,
+            body.page-home-active #hand-widget-window .section-content,
+            body.page-home-active #manifest-window .section-content,
             #admin-panel,
             body.page-home-active #session-bar,
             body.page-home-active #featured-widget,
-            body.page-home-active #mixer-window {
+            body.page-home-active #mixer-window,
+            body.page-home-active #hand-widget-window,
+            body.page-home-active #manifest-window {
                 backdrop-filter: blur(1px);
             }
 
@@ -788,17 +808,23 @@
             #admin-panel,
             body.page-home-active #session-bar,
             body.page-home-active #featured-widget,
-            body.page-home-active #mixer-window {
+            body.page-home-active #mixer-window,
+            body.page-home-active #hand-widget-window,
+            body.page-home-active #manifest-window {
                 overflow: hidden;
             }
 
-            body.page-home-active #mixer-window .section-content {
+            body.page-home-active #mixer-window .section-content,
+            body.page-home-active #hand-widget-window .section-content,
+            body.page-home-active #manifest-window .section-content {
                 height: calc(100% - 40px);
                 padding: 0;
                 background: #f5deb3;
             }
 
-            body.page-home-active #mixer-window iframe {
+            body.page-home-active #mixer-window iframe,
+            body.page-home-active #hand-widget-window iframe,
+            body.page-home-active #manifest-window iframe {
                 display: block;
                 width: 100%;
                 height: 100%;
@@ -807,7 +833,9 @@
             }
 
             #admin-panel .window-resize-handle,
-            body.page-home-active #mixer-window .window-resize-handle {
+            body.page-home-active #mixer-window .window-resize-handle,
+            body.page-home-active #hand-widget-window .window-resize-handle,
+            body.page-home-active #manifest-window .window-resize-handle {
                 display: block;
                 position: absolute;
                 right: 0;
@@ -919,6 +947,20 @@
                     </span>
                     <img class="feature-link-image" src="/images/caros-mixer-cover.png" alt="caro's candy mixer cover image">
                 </a>
+                <a class="feature-link" href="/caros-widget2/" id="open-hand-widget-window">
+                    <span class="feature-link-copy">
+                        <strong>hand sculpture</strong>
+                        webcam-controlled 3d shape sculpting playground
+                    </span>
+                    <img class="feature-link-image" src="/images/hand-sculpture-cover.png" alt="hand sculpture widget preview">
+                </a>
+                <a class="feature-link" href="/caros-manifest/" id="open-manifest-window">
+                    <span class="feature-link-copy">
+                        <strong>angel remix manifest</strong>
+                        webcam reactive audio remix lab + visual manifest tool
+                    </span>
+                    <img class="feature-link-image" src="/images/caros-manifest-cover.png" alt="angel remix manifest widget preview">
+                </a>
             </div>
         </div>
 
@@ -933,6 +975,32 @@
                 <iframe id="mixer-window-frame" title="caro's candy mixer window" data-src="/caros-mixer/"></iframe>
             </div>
             <div class="window-resize-handle" data-resize-target="mixer-window" aria-hidden="true"></div>
+        </div>
+
+        <div class="section" id="hand-widget-window">
+            <div class="section-title window-titlebar" data-drag-handle>
+                <span class="window-title-text">hand sculpture</span>
+                <span class="window-controls">
+                    <button type="button" class="window-control-btn" id="minimize-hand-widget-window" aria-label="Minimize hand sculpture window">_</button>
+                </span>
+            </div>
+            <div class="section-content">
+                <iframe id="hand-widget-window-frame" title="hand sculpture widget window" data-src="/caros-widget2/" allow="camera"></iframe>
+            </div>
+            <div class="window-resize-handle" data-resize-target="hand-widget-window" aria-hidden="true"></div>
+        </div>
+
+        <div class="section" id="manifest-window">
+            <div class="section-title window-titlebar" data-drag-handle>
+                <span class="window-title-text">angel remix manifest</span>
+                <span class="window-controls">
+                    <button type="button" class="window-control-btn" id="minimize-manifest-window" aria-label="Minimize angel remix manifest window">_</button>
+                </span>
+            </div>
+            <div class="section-content">
+                <iframe id="manifest-window-frame" title="angel remix manifest widget window" data-src="/caros-manifest/" allow="camera"></iframe>
+            </div>
+            <div class="window-resize-handle" data-resize-target="manifest-window" aria-hidden="true"></div>
         </div>
 
         <!-- About Page -->
@@ -1390,10 +1458,12 @@
         }
 
         (function () {
-            const widgetIds = ['admin-panel', 'session-bar', 'featured-widget', 'mixer-window'];
+            const widgetIds = ['admin-panel', 'session-bar', 'featured-widget', 'mixer-window', 'hand-widget-window', 'manifest-window'];
             const positionKey = 'carosDesktopWidgetPositions';
             let highestZ = 1300;
             let mixerCloseTimer = null;
+            let handWidgetCloseTimer = null;
+            let manifestCloseTimer = null;
 
             function isDesktopLayout() {
                 return window.innerWidth >= 980;
@@ -1430,13 +1500,21 @@
                     'admin-panel': { x: clamp(feedLeft - 344, 16, window.innerWidth - 336), y: 168 },
                     'session-bar': { x: clamp(feedLeft + feedWidth + 28, 16, window.innerWidth - 336), y: 168 },
                     'featured-widget': { x: clamp(feedLeft + feedWidth + 28, 16, window.innerWidth - 336), y: 372 },
-                    'mixer-window': { x: Math.max(16, Math.round((window.innerWidth - mixerWidth) / 2)), y: 48 }
+                    'mixer-window': { x: Math.max(16, Math.round((window.innerWidth - mixerWidth) / 2)), y: 48 },
+                    'hand-widget-window': { x: Math.max(16, Math.round((window.innerWidth - mixerWidth) / 2) + 48), y: 86 },
+                    'manifest-window': { x: Math.max(16, Math.round((window.innerWidth - mixerWidth) / 2) + 96), y: 124 }
                 };
             }
 
             function getWidgetSizeConfig(id) {
                 if (id === 'mixer-window') {
                     return { minWidth: 900, minHeight: 650, defaultWidth: 1536, defaultHeight: 1040 };
+                }
+                if (id === 'hand-widget-window') {
+                    return { minWidth: 440, minHeight: 720, defaultWidth: 520, defaultHeight: 900 };
+                }
+                if (id === 'manifest-window') {
+                    return { minWidth: 920, minHeight: 760, defaultWidth: 1180, defaultHeight: 920 };
                 }
                 if (id === 'admin-panel') {
                     return { minWidth: 320, minHeight: 230, defaultWidth: 320, defaultHeight: null };
@@ -1448,7 +1526,7 @@
                 if (!el || !isDesktopLayout() || !isHomeActive()) return;
                 const config = getWidgetSizeConfig(el.id);
                 if (!config) return;
-                if (el.id === 'mixer-window') {
+                if (el.id === 'mixer-window' || el.id === 'hand-widget-window' || el.id === 'manifest-window') {
                     el.style.width = Math.min(config.defaultWidth, window.innerWidth - 32) + 'px';
                     el.style.height = Math.min(config.defaultHeight, window.innerHeight - 32) + 'px';
                     return;
@@ -1562,6 +1640,68 @@
                 }, 180);
             }
 
+            function openHandWidgetWindow() {
+                const handWidgetWindow = document.getElementById('hand-widget-window');
+                const handWidgetFrame = document.getElementById('hand-widget-window-frame');
+                if (!handWidgetWindow) return;
+                if (handWidgetCloseTimer) {
+                    window.clearTimeout(handWidgetCloseTimer);
+                    handWidgetCloseTimer = null;
+                }
+                handWidgetWindow.classList.remove('is-closing');
+                handWidgetWindow.classList.add('is-open');
+                if (handWidgetFrame && !handWidgetFrame.getAttribute('src')) {
+                    handWidgetFrame.setAttribute('src', handWidgetFrame.dataset.src || '/caros-widget2/');
+                }
+                positionWidgets(false);
+                bringWidgetToFront(handWidgetWindow);
+            }
+
+            function closeHandWidgetWindow() {
+                const handWidgetWindow = document.getElementById('hand-widget-window');
+                if (!handWidgetWindow) return;
+                if (handWidgetCloseTimer) {
+                    window.clearTimeout(handWidgetCloseTimer);
+                }
+                handWidgetWindow.classList.remove('is-open');
+                handWidgetWindow.classList.add('is-closing');
+                handWidgetCloseTimer = window.setTimeout(function () {
+                    handWidgetWindow.classList.remove('is-closing');
+                    handWidgetCloseTimer = null;
+                }, 180);
+            }
+
+            function openManifestWindow() {
+                const manifestWindow = document.getElementById('manifest-window');
+                const manifestFrame = document.getElementById('manifest-window-frame');
+                if (!manifestWindow) return;
+                if (manifestCloseTimer) {
+                    window.clearTimeout(manifestCloseTimer);
+                    manifestCloseTimer = null;
+                }
+                manifestWindow.classList.remove('is-closing');
+                manifestWindow.classList.add('is-open');
+                if (manifestFrame && !manifestFrame.getAttribute('src')) {
+                    manifestFrame.setAttribute('src', manifestFrame.dataset.src || '/caros-manifest/');
+                }
+                positionWidgets(false);
+                bringWidgetToFront(manifestWindow);
+            }
+
+            function closeManifestWindow() {
+                const manifestWindow = document.getElementById('manifest-window');
+                if (!manifestWindow) return;
+                if (manifestCloseTimer) {
+                    window.clearTimeout(manifestCloseTimer);
+                }
+                manifestWindow.classList.remove('is-open');
+                manifestWindow.classList.add('is-closing');
+                manifestCloseTimer = window.setTimeout(function () {
+                    manifestWindow.classList.remove('is-closing');
+                    manifestCloseTimer = null;
+                }, 180);
+            }
+
             function initWidgetResize() {
                 const resizeHandles = document.querySelectorAll('[data-resize-target]');
 
@@ -1592,7 +1732,7 @@
                             const nextWidth = clamp(startWidth + (moveEvent.clientX - startX), config.minWidth, maxWidth);
                             target.style.width = nextWidth + 'px';
 
-                            const allowsHeightResize = target.id === 'mixer-window' || target.id === 'admin-panel';
+                            const allowsHeightResize = target.id === 'mixer-window' || target.id === 'hand-widget-window' || target.id === 'manifest-window' || target.id === 'admin-panel';
                             if (allowsHeightResize) {
                                 const maxHeight = Math.max(config.minHeight, window.innerHeight - target.offsetTop - 16);
                                 const nextHeight = clamp(startHeight + (moveEvent.clientY - startY), config.minHeight, maxHeight);
@@ -1624,6 +1764,10 @@
 
                 const mixerLaunch = document.getElementById('open-mixer-window');
                 const mixerMinimize = document.getElementById('minimize-mixer-window');
+                const handWidgetLaunch = document.getElementById('open-hand-widget-window');
+                const handWidgetMinimize = document.getElementById('minimize-hand-widget-window');
+                const manifestLaunch = document.getElementById('open-manifest-window');
+                const manifestMinimize = document.getElementById('minimize-manifest-window');
 
                 if (mixerLaunch) {
                     mixerLaunch.addEventListener('click', function (event) {
@@ -1636,6 +1780,34 @@
                 if (mixerMinimize) {
                     mixerMinimize.addEventListener('click', function () {
                         closeMixerWindow();
+                    });
+                }
+
+                if (handWidgetLaunch) {
+                    handWidgetLaunch.addEventListener('click', function (event) {
+                        if (!isDesktopLayout() || !isHomeActive()) return;
+                        event.preventDefault();
+                        openHandWidgetWindow();
+                    });
+                }
+
+                if (handWidgetMinimize) {
+                    handWidgetMinimize.addEventListener('click', function () {
+                        closeHandWidgetWindow();
+                    });
+                }
+
+                if (manifestLaunch) {
+                    manifestLaunch.addEventListener('click', function (event) {
+                        if (!isDesktopLayout() || !isHomeActive()) return;
+                        event.preventDefault();
+                        openManifestWindow();
+                    });
+                }
+
+                if (manifestMinimize) {
+                    manifestMinimize.addEventListener('click', function () {
+                        closeManifestWindow();
                     });
                 }
 
