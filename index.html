@@ -896,6 +896,40 @@
         <!-- Home/Updates Page -->
         <div id="home" class="page active">
             <div class="home-feed-shell">
+                <div class="section" id="featured-widget">
+                    <div class="section-title window-titlebar" data-drag-handle>Featured Widgets</div>
+                    <div class="section-content">
+                        <a class="feature-link" href="/caros-mixer/" id="open-mixer-window">
+                            <span class="feature-link-copy">
+                                <strong>caro's candy mixer</strong>
+                                camera-controlled browser synth + sequencer
+                            </span>
+                            <img class="feature-link-image" src="/images/caros-mixer-cover.png" alt="caro's candy mixer cover image">
+                        </a>
+                        <a class="feature-link" href="/caros-widget2/" id="open-hand-widget-window">
+                            <span class="feature-link-copy">
+                                <strong>hand sculpture</strong>
+                                webcam-controlled 3d shape sculpting playground
+                            </span>
+                            <img class="feature-link-image" src="/images/hand-sculpture-cover.png" alt="hand sculpture widget preview">
+                        </a>
+                        <a class="feature-link" href="/caros-manifest/" id="open-manifest-window">
+                            <span class="feature-link-copy">
+                                <strong>angel remix manifest</strong>
+                                webcam reactive audio remix lab + visual manifest tool
+                            </span>
+                            <img class="feature-link-image" src="/images/caros-manifest-cover.png" alt="angel remix manifest widget preview">
+                        </a>
+                        <a class="feature-link" href="/dream.net/" id="open-dreamnet-window">
+                            <span class="feature-link-copy">
+                                <strong>dream.net</strong>
+                                tabloid-style neural image synth for strange dream prompts
+                            </span>
+                            <img class="feature-link-image" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 108 76'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%237d9ba6'/><stop offset='100%' stop-color='%233a5b67'/></linearGradient></defs><rect width='108' height='76' fill='url(%23g)'/><rect x='7' y='7' width='94' height='62' fill='%23f7f7f7' stroke='%23666' stroke-width='2'/><rect x='7' y='7' width='94' height='10' fill='%23bdbdbd'/><path d='M13 12h35' stroke='%23efefef' stroke-width='1.5'/><path d='M54 12h41' stroke='%23efefef' stroke-width='1.5'/><rect x='22' y='25' width='64' height='32' fill='%2310151f' stroke='%23cc0000' stroke-width='1.5'/><circle cx='42' cy='40' r='11' fill='%23ff4fa3' opacity='0.75'/><circle cx='62' cy='39' r='13' fill='%2369d3ff' opacity='0.55'/><rect x='22' y='58' width='44' height='6' fill='%23cc0000'/><text x='44' y='63' text-anchor='middle' font-family='Times New Roman' font-size='4.5' fill='white'>DREAM.net</text></svg>" alt="dream.net widget preview">
+                        </a>
+                    </div>
+                </div>
+
                 <div class="section">
                     <div class="section-title" id="home-title-1">Introduction</div>
                     <div class="section-content" id="intro-text">hello, this is Caroline :-) this website was made in the depths of the internet and i doubt you'll find it but who knows? maybe it was meant to be. this is for life updates and a way for me to spill my heart onto the internet for your viewing pleasures. i say as i speak into the void. hello god, its me, Caroline!</div>
@@ -948,40 +982,6 @@
                     <button type="button" id="post-update-btn" onclick="addUpdate()">Post Update</button>
                 </div>
                 <div class="window-resize-handle" data-resize-target="admin-panel" aria-hidden="true"></div>
-            </div>
-        </div>
-
-        <div class="section" id="featured-widget">
-            <div class="section-title window-titlebar" data-drag-handle>Featured Widgets</div>
-            <div class="section-content">
-                <a class="feature-link" href="/caros-mixer/" id="open-mixer-window">
-                    <span class="feature-link-copy">
-                        <strong>caro's candy mixer</strong>
-                        camera-controlled browser synth + sequencer
-                    </span>
-                    <img class="feature-link-image" src="/images/caros-mixer-cover.png" alt="caro's candy mixer cover image">
-                </a>
-                <a class="feature-link" href="/caros-widget2/" id="open-hand-widget-window">
-                    <span class="feature-link-copy">
-                        <strong>hand sculpture</strong>
-                        webcam-controlled 3d shape sculpting playground
-                    </span>
-                    <img class="feature-link-image" src="/images/hand-sculpture-cover.png" alt="hand sculpture widget preview">
-                </a>
-                <a class="feature-link" href="/caros-manifest/" id="open-manifest-window">
-                    <span class="feature-link-copy">
-                        <strong>angel remix manifest</strong>
-                        webcam reactive audio remix lab + visual manifest tool
-                    </span>
-                    <img class="feature-link-image" src="/images/caros-manifest-cover.png" alt="angel remix manifest widget preview">
-                </a>
-                <a class="feature-link" href="/dream.net/" id="open-dreamnet-window">
-                    <span class="feature-link-copy">
-                        <strong>dream.net</strong>
-                        tabloid-style neural image synth for strange dream prompts
-                    </span>
-                    <img class="feature-link-image" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 108 76'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%237d9ba6'/><stop offset='100%' stop-color='%233a5b67'/></linearGradient></defs><rect width='108' height='76' fill='url(%23g)'/><rect x='7' y='7' width='94' height='62' fill='%23f7f7f7' stroke='%23666' stroke-width='2'/><rect x='7' y='7' width='94' height='10' fill='%23bdbdbd'/><path d='M13 12h35' stroke='%23efefef' stroke-width='1.5'/><path d='M54 12h41' stroke='%23efefef' stroke-width='1.5'/><rect x='22' y='25' width='64' height='32' fill='%2310151f' stroke='%23cc0000' stroke-width='1.5'/><circle cx='42' cy='40' r='11' fill='%23ff4fa3' opacity='0.75'/><circle cx='62' cy='39' r='13' fill='%2369d3ff' opacity='0.55'/><rect x='22' y='58' width='44' height='6' fill='%23cc0000'/><text x='44' y='63' text-anchor='middle' font-family='Times New Roman' font-size='4.5' fill='white'>DREAM.net</text></svg>" alt="dream.net widget preview">
-                </a>
             </div>
         </div>
 
