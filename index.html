@@ -241,7 +241,8 @@
 
         #mixer-window,
         #hand-widget-window,
-        #manifest-window {
+        #manifest-window,
+        #dreamnet-window {
             display: none;
         }
 
@@ -251,13 +252,15 @@
 
         body.page-home-active #mixer-window.is-open,
         body.page-home-active #hand-widget-window.is-open,
-        body.page-home-active #manifest-window.is-open {
+        body.page-home-active #manifest-window.is-open,
+        body.page-home-active #dreamnet-window.is-open {
             display: block;
         }
 
         body.page-home-active #mixer-window.is-closing,
         body.page-home-active #hand-widget-window.is-closing,
-        body.page-home-active #manifest-window.is-closing {
+        body.page-home-active #manifest-window.is-closing,
+        body.page-home-active #dreamnet-window.is-closing {
             display: block;
         }
 
@@ -715,7 +718,9 @@
             body.page-home-active #hand-widget-window.is-open,
             body.page-home-active #hand-widget-window.is-closing,
             body.page-home-active #manifest-window.is-open,
-            body.page-home-active #manifest-window.is-closing {
+            body.page-home-active #manifest-window.is-closing,
+            body.page-home-active #dreamnet-window.is-open,
+            body.page-home-active #dreamnet-window.is-closing {
                 position: fixed;
                 width: 320px;
                 margin-top: 0;
@@ -731,7 +736,8 @@
 
             body.page-home-active #mixer-window.is-open,
             body.page-home-active #hand-widget-window.is-open,
-            body.page-home-active #manifest-window.is-open {
+            body.page-home-active #manifest-window.is-open,
+            body.page-home-active #dreamnet-window.is-open {
                 width: min(1520px, calc(100vw - 32px));
                 height: min(1100px, calc(100vh - 32px));
                 z-index: 1500;
@@ -741,7 +747,8 @@
 
             body.page-home-active #mixer-window.is-closing,
             body.page-home-active #hand-widget-window.is-closing,
-            body.page-home-active #manifest-window.is-closing {
+            body.page-home-active #manifest-window.is-closing,
+            body.page-home-active #dreamnet-window.is-closing {
                 width: min(1520px, calc(100vw - 32px));
                 height: min(1100px, calc(100vh - 32px));
                 z-index: 1500;
@@ -765,7 +772,8 @@
             body.page-home-active #featured-widget .section-title,
             body.page-home-active #mixer-window .section-title,
             body.page-home-active #hand-widget-window .section-title,
-            body.page-home-active #manifest-window .section-title {
+            body.page-home-active #manifest-window .section-title,
+            body.page-home-active #dreamnet-window .section-title {
                 cursor: move;
             }
 
@@ -775,12 +783,14 @@
             body.page-home-active #mixer-window .section-content,
             body.page-home-active #hand-widget-window .section-content,
             body.page-home-active #manifest-window .section-content,
+            body.page-home-active #dreamnet-window .section-content,
             #admin-panel,
             body.page-home-active #session-bar,
             body.page-home-active #featured-widget,
             body.page-home-active #mixer-window,
             body.page-home-active #hand-widget-window,
-            body.page-home-active #manifest-window {
+            body.page-home-active #manifest-window,
+            body.page-home-active #dreamnet-window {
                 backdrop-filter: blur(1px);
             }
 
@@ -810,13 +820,15 @@
             body.page-home-active #featured-widget,
             body.page-home-active #mixer-window,
             body.page-home-active #hand-widget-window,
-            body.page-home-active #manifest-window {
+            body.page-home-active #manifest-window,
+            body.page-home-active #dreamnet-window {
                 overflow: hidden;
             }
 
             body.page-home-active #mixer-window .section-content,
             body.page-home-active #hand-widget-window .section-content,
-            body.page-home-active #manifest-window .section-content {
+            body.page-home-active #manifest-window .section-content,
+            body.page-home-active #dreamnet-window .section-content {
                 height: calc(100% - 40px);
                 padding: 0;
                 background: #f5deb3;
@@ -824,7 +836,8 @@
 
             body.page-home-active #mixer-window iframe,
             body.page-home-active #hand-widget-window iframe,
-            body.page-home-active #manifest-window iframe {
+            body.page-home-active #manifest-window iframe,
+            body.page-home-active #dreamnet-window iframe {
                 display: block;
                 width: 100%;
                 height: 100%;
@@ -835,7 +848,8 @@
             #admin-panel .window-resize-handle,
             body.page-home-active #mixer-window .window-resize-handle,
             body.page-home-active #hand-widget-window .window-resize-handle,
-            body.page-home-active #manifest-window .window-resize-handle {
+            body.page-home-active #manifest-window .window-resize-handle,
+            body.page-home-active #dreamnet-window .window-resize-handle {
                 display: block;
                 position: absolute;
                 right: 0;
@@ -961,6 +975,13 @@
                     </span>
                     <img class="feature-link-image" src="/images/caros-manifest-cover.png" alt="angel remix manifest widget preview">
                 </a>
+                <a class="feature-link" href="/dream.net/" id="open-dreamnet-window">
+                    <span class="feature-link-copy">
+                        <strong>dream.net</strong>
+                        tabloid-style neural image synth for strange dream prompts
+                    </span>
+                    <img class="feature-link-image" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 108 76'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%237d9ba6'/><stop offset='100%' stop-color='%233a5b67'/></linearGradient></defs><rect width='108' height='76' fill='url(%23g)'/><rect x='7' y='7' width='94' height='62' fill='%23f7f7f7' stroke='%23666' stroke-width='2'/><rect x='7' y='7' width='94' height='10' fill='%23bdbdbd'/><path d='M13 12h35' stroke='%23efefef' stroke-width='1.5'/><path d='M54 12h41' stroke='%23efefef' stroke-width='1.5'/><rect x='22' y='25' width='64' height='32' fill='%2310151f' stroke='%23cc0000' stroke-width='1.5'/><circle cx='42' cy='40' r='11' fill='%23ff4fa3' opacity='0.75'/><circle cx='62' cy='39' r='13' fill='%2369d3ff' opacity='0.55'/><rect x='22' y='58' width='44' height='6' fill='%23cc0000'/><text x='44' y='63' text-anchor='middle' font-family='Times New Roman' font-size='4.5' fill='white'>DREAM.net</text></svg>" alt="dream.net widget preview">
+                </a>
             </div>
         </div>
 
@@ -1001,6 +1022,19 @@
                 <iframe id="manifest-window-frame" title="angel remix manifest widget window" data-src="/caros-manifest/" allow="camera"></iframe>
             </div>
             <div class="window-resize-handle" data-resize-target="manifest-window" aria-hidden="true"></div>
+        </div>
+
+        <div class="section" id="dreamnet-window">
+            <div class="section-title window-titlebar" data-drag-handle>
+                <span class="window-title-text">dream.net</span>
+                <span class="window-controls">
+                    <button type="button" class="window-control-btn" id="minimize-dreamnet-window" aria-label="Minimize dream.net window">_</button>
+                </span>
+            </div>
+            <div class="section-content">
+                <iframe id="dreamnet-window-frame" title="dream.net widget window" data-src="/dream.net/"></iframe>
+            </div>
+            <div class="window-resize-handle" data-resize-target="dreamnet-window" aria-hidden="true"></div>
         </div>
 
         <!-- About Page -->
@@ -1458,12 +1492,13 @@
         }
 
         (function () {
-            const widgetIds = ['admin-panel', 'session-bar', 'featured-widget', 'mixer-window', 'hand-widget-window', 'manifest-window'];
+            const widgetIds = ['admin-panel', 'session-bar', 'featured-widget', 'mixer-window', 'hand-widget-window', 'manifest-window', 'dreamnet-window'];
             const positionKey = 'carosDesktopWidgetPositions';
             let highestZ = 1300;
             let mixerCloseTimer = null;
             let handWidgetCloseTimer = null;
             let manifestCloseTimer = null;
+            let dreamnetCloseTimer = null;
 
             function isDesktopLayout() {
                 return window.innerWidth >= 980;
@@ -1502,7 +1537,8 @@
                     'featured-widget': { x: clamp(feedLeft + feedWidth + 28, 16, window.innerWidth - 336), y: 372 },
                     'mixer-window': { x: Math.max(16, Math.round((window.innerWidth - mixerWidth) / 2)), y: 48 },
                     'hand-widget-window': { x: Math.max(16, Math.round((window.innerWidth - mixerWidth) / 2) + 48), y: 86 },
-                    'manifest-window': { x: Math.max(16, Math.round((window.innerWidth - mixerWidth) / 2) + 96), y: 124 }
+                    'manifest-window': { x: Math.max(16, Math.round((window.innerWidth - mixerWidth) / 2) + 96), y: 124 },
+                    'dreamnet-window': { x: Math.max(16, Math.round((window.innerWidth - mixerWidth) / 2) + 144), y: 162 }
                 };
             }
 
@@ -1516,6 +1552,9 @@
                 if (id === 'manifest-window') {
                     return { minWidth: 920, minHeight: 760, defaultWidth: 1180, defaultHeight: 920 };
                 }
+                if (id === 'dreamnet-window') {
+                    return { minWidth: 640, minHeight: 620, defaultWidth: 900, defaultHeight: 780 };
+                }
                 if (id === 'admin-panel') {
                     return { minWidth: 320, minHeight: 230, defaultWidth: 320, defaultHeight: null };
                 }
@@ -1526,7 +1565,7 @@
                 if (!el || !isDesktopLayout() || !isHomeActive()) return;
                 const config = getWidgetSizeConfig(el.id);
                 if (!config) return;
-                if (el.id === 'mixer-window' || el.id === 'hand-widget-window' || el.id === 'manifest-window') {
+                if (el.id === 'mixer-window' || el.id === 'hand-widget-window' || el.id === 'manifest-window' || el.id === 'dreamnet-window') {
                     el.style.width = Math.min(config.defaultWidth, window.innerWidth - 32) + 'px';
                     el.style.height = Math.min(config.defaultHeight, window.innerHeight - 32) + 'px';
                     return;
@@ -1702,6 +1741,37 @@
                 }, 180);
             }
 
+            function openDreamnetWindow() {
+                const dreamnetWindow = document.getElementById('dreamnet-window');
+                const dreamnetFrame = document.getElementById('dreamnet-window-frame');
+                if (!dreamnetWindow) return;
+                if (dreamnetCloseTimer) {
+                    window.clearTimeout(dreamnetCloseTimer);
+                    dreamnetCloseTimer = null;
+                }
+                dreamnetWindow.classList.remove('is-closing');
+                dreamnetWindow.classList.add('is-open');
+                if (dreamnetFrame && !dreamnetFrame.getAttribute('src')) {
+                    dreamnetFrame.setAttribute('src', dreamnetFrame.dataset.src || '/dream.net/');
+                }
+                positionWidgets(false);
+                bringWidgetToFront(dreamnetWindow);
+            }
+
+            function closeDreamnetWindow() {
+                const dreamnetWindow = document.getElementById('dreamnet-window');
+                if (!dreamnetWindow) return;
+                if (dreamnetCloseTimer) {
+                    window.clearTimeout(dreamnetCloseTimer);
+                }
+                dreamnetWindow.classList.remove('is-open');
+                dreamnetWindow.classList.add('is-closing');
+                dreamnetCloseTimer = window.setTimeout(function () {
+                    dreamnetWindow.classList.remove('is-closing');
+                    dreamnetCloseTimer = null;
+                }, 180);
+            }
+
             function initWidgetResize() {
                 const resizeHandles = document.querySelectorAll('[data-resize-target]');
 
@@ -1732,7 +1802,7 @@
                             const nextWidth = clamp(startWidth + (moveEvent.clientX - startX), config.minWidth, maxWidth);
                             target.style.width = nextWidth + 'px';
 
-                            const allowsHeightResize = target.id === 'mixer-window' || target.id === 'hand-widget-window' || target.id === 'manifest-window' || target.id === 'admin-panel';
+                            const allowsHeightResize = target.id === 'mixer-window' || target.id === 'hand-widget-window' || target.id === 'manifest-window' || target.id === 'dreamnet-window' || target.id === 'admin-panel';
                             if (allowsHeightResize) {
                                 const maxHeight = Math.max(config.minHeight, window.innerHeight - target.offsetTop - 16);
                                 const nextHeight = clamp(startHeight + (moveEvent.clientY - startY), config.minHeight, maxHeight);
@@ -1768,6 +1838,8 @@
                 const handWidgetMinimize = document.getElementById('minimize-hand-widget-window');
                 const manifestLaunch = document.getElementById('open-manifest-window');
                 const manifestMinimize = document.getElementById('minimize-manifest-window');
+                const dreamnetLaunch = document.getElementById('open-dreamnet-window');
+                const dreamnetMinimize = document.getElementById('minimize-dreamnet-window');
 
                 if (mixerLaunch) {
                     mixerLaunch.addEventListener('click', function (event) {
@@ -1808,6 +1880,20 @@
                 if (manifestMinimize) {
                     manifestMinimize.addEventListener('click', function () {
                         closeManifestWindow();
+                    });
+                }
+
+                if (dreamnetLaunch) {
+                    dreamnetLaunch.addEventListener('click', function (event) {
+                        if (!isDesktopLayout() || !isHomeActive()) return;
+                        event.preventDefault();
+                        openDreamnetWindow();
+                    });
+                }
+
+                if (dreamnetMinimize) {
+                    dreamnetMinimize.addEventListener('click', function () {
+                        closeDreamnetWindow();
                     });
                 }
 

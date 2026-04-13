@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DREAM.net - Neural Synth v3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Times+New+Roman&display=swap');
+
+        body {
+            background: radial-gradient(circle, #7d9ba6 0%, #3a5b67 100%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .bg-bands {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(255,255,255,0.05) 0px,
+                rgba(255,255,255,0.05) 50px,
+                transparent 50px,
+                transparent 100px
+            );
+            filter: blur(20px);
+            z-index: -1;
+        }
+
+        .win-border {
+            border: 3px solid #b2b2b2;
+            border-top-color: #eee;
+            border-left-color: #eee;
+            border-right-color: #666;
+            border-bottom-color: #666;
+            background-color: #fff;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .win-header {
+            background: linear-gradient(90deg, #999, #ccc);
+            height: 24px;
+            border-bottom: 2px solid #666;
+            display: flex;
+            align-items: center;
+            padding: 0 4px;
+        }
+
+        .win-header-stripes {
+            flex-grow: 1;
+            height: 10px;
+            background: repeating-linear-gradient(0deg, #eee 0px, #eee 1px, transparent 1px, transparent 2px);
+        }
+
+        .tabloid-red {
+            color: #cc0000;
+            font-weight: bold;
+        }
+
+        .image-pixelated {
+            image-rendering: pixelated;
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        .loading-scan {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: red;
+            box-shadow: 0 0 10px red;
+            animation: scanline 2s linear infinite;
+            z-index: 30;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="bg-bands"></div>
+
+    <div class="win-border w-full max-w-xl overflow-hidden mb-8">
+        <div class="win-header">
+            <div class="win-header-stripes mr-2"></div>
+            <div class="win-header-stripes"></div>
+        </div>
+
+        <div class="p-6">
+            <div class="text-center mb-8">
+                <h1 class="text-7xl font-normal tracking-tight leading-none mb-1">DREAM.net</h1>
+                <div class="flex justify-center gap-4 text-lg">
+                    <button class="hover:underline">new</button>
+                    <button class="hover:underline">log-in</button>
+                    <button class="hover:underline">exit</button>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-6">
+                <div class="flex-1 space-y-6">
+                    <div>
+                        <h2 class="text-2xl italic mb-4">"The Next Step in Evolution"</h2>
+                        <div class="border-2 border-gray-400 p-1">
+                            <input 
+                                id="prompt" 
+                                type="text" 
+                                placeholder="TYPE_PROMPT_HERE" 
+                                class="w-full p-2 text-xl border border-gray-300 focus:outline-none focus:bg-yellow-50 font-serif uppercase"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button 
+                            onclick="handleGeneration()" 
+                            id="gen-btn"
+                            class="text-4xl tabloid-red hover:scale-105 transition-transform"
+                        >
+                            Are You Ready?
+                        </button>
+                        <div class="mt-2 underline text-blue-800 text-lg cursor-pointer hover:text-red-700">
+                            Watch Controversial Generation 📹
+                        </div>
+                    </div>
+
+                    <div id="status-bar" class="text-xs text-gray-500 font-mono border-t border-gray-200 pt-2">
+                        STATUS: READY_FOR_UPLINK<br>
+                        V-RES: 256px_PIXELATED
+                    </div>
+                </div>
+
+                <div class="w-full md:w-[256px] space-y-2">
+                    <div class="relative win-border p-1 bg-black aspect-square flex items-center justify-center overflow-hidden">
+                        <div id="loader" class="hidden absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/80 text-white p-4 font-mono text-[10px]">
+                            <div class="loading-scan"></div>
+                            <div class="space-y-1">
+                                <div id="log-1">> INIT_DREAM... [OK]</div>
+                                <div id="log-2" class="opacity-0">> SYNC_EVOLUTION... [OK]</div>
+                                <div id="log-3" class="opacity-0">> LATENT_DREAMING... [RUN]</div>
+                            </div>
+                        </div>
+                        
+                        <canvas id="out-canvas" width="256" height="256" class="hidden w-full h-full image-pixelated"></canvas>
+                        
+                        <div id="placeholder-ui" class="text-white/20 text-center uppercase italic text-xs">
+                            Video Signal Lost
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function generateNeuroDepiction(prompt, ctx) {
+            const w = 256;
+            const h = 256;
+            
+            let seed = 0;
+            for (let i = 0; i < prompt.length; i++) {
+                seed = ((seed << 5) - seed) + prompt.charCodeAt(i);
+                seed |= 0;
+            }
+
+            function random() {
+                var x = Math.sin(seed++) * 10000;
+                return x - Math.floor(x);
+            }
+
+            const hue = Math.abs(seed % 360);
+            const secondaryHue = (hue + 60) % 360;
+
+            // 1. Initial Void
+            ctx.fillStyle = `hsl(${hue}, 20%, 5%)`;
+            ctx.fillRect(0, 0, w, h);
+
+            // 2. Latent Smears
+            for(let i=0; i<35; i++) {
+                ctx.globalAlpha = random() * 0.5 + 0.1;
+                const x = random() * w;
+                const y = random() * h;
+                const r = random() * 120 + 30;
+                
+                const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+                const colorType = random();
+                if(colorType > 0.8) {
+                    g.addColorStop(0, `hsl(${hue}, 90%, 60%)`);
+                } else if (colorType > 0.4) {
+                    g.addColorStop(0, `hsl(${secondaryHue}, 70%, 50%)`);
+                } else {
+                    g.addColorStop(0, "#ffffff");
+                }
+                g.addColorStop(1, 'transparent');
+                
+                ctx.fillStyle = g;
+                ctx.beginPath();
+                let points = Math.floor(random() * 10) + 5;
+                for(let p=0; p < points; p++) {
+                    const angle = (p / points) * Math.PI * 2;
+                    const offset = r * (0.6 + random() * 1.4);
+                    const px = x + Math.cos(angle) * offset;
+                    const py = y + Math.sin(angle) * offset;
+                    if(p === 0) ctx.moveTo(px, py);
+                    else ctx.bezierCurveTo(x, y, x + (random()-0.5)*r, y + (random()-0.5)*r, px, py);
+                }
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            // 3. Digital Grain & Fibers
+            ctx.globalAlpha = 0.3;
+            for(let i=0; i<70; i++) {
+                ctx.strokeStyle = random() > 0.5 ? `hsl(${hue}, 100%, 85%)` : `hsl(${secondaryHue}, 100%, 85%)`;
+                ctx.lineWidth = random() * 1.5;
+                ctx.beginPath();
+                ctx.moveTo(random()*w, random()*h);
+                ctx.lineTo(random()*w, random()*h);
+                ctx.stroke();
+            }
+
+            // 4. Heavy VQ Pixelation Pass
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 10 + Math.floor(random() * 20); 
+            tempCanvas.height = tempCanvas.width;
+            const tCtx = tempCanvas.getContext('2d');
+            tCtx.drawImage(ctx.canvas, 0, 0, tempCanvas.width, tempCanvas.height);
+            
+            ctx.globalAlpha = 0.7;
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(tempCanvas, 0, 0, w, h);
+
+            // 5. Artifacting & Vignette
+            const imgData = ctx.getImageData(0,0,w,h);
+            const data = imgData.data;
+            for(let i=0; i<data.length; i+=4) {
+                const px = (i/4) % w;
+                const py = Math.floor((i/4) / w);
+                const dist = Math.sqrt(Math.pow(px-128, 2) + Math.pow(py-128, 2));
+                const vignette = Math.max(0, 1 - (dist / 180));
+                
+                const shift = (random() - 0.5) * 80;
+                data[i] = (data[i] + shift) * (vignette + 0.2);
+                data[i+1] = (data[i+1] + shift) * (vignette + 0.2);
+                data[i+2] = (data[i+2] + shift) * (vignette + 0.2);
+
+                if(random() > 0.9992) {
+                    data[i] = 255; data[i+1] = 0; data[i+2] = 255;
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+
+            // 6. Signature Tabloid Banner
+            ctx.globalAlpha = 1.0;
+            ctx.fillStyle = "#cc0000";
+            ctx.fillRect(0, 225, 256, 31);
+            ctx.fillStyle = "white";
+            ctx.font = "bold 18px 'Times New Roman'";
+            ctx.fillText("EVOLUTION_STEP_" + (100 + Math.floor(random()*899)), 10, 248);
+        }
+
+        async function handleGeneration() {
+            const promptInput = document.getElementById("prompt");
+            const btn = document.getElementById("gen-btn");
+            const canvas = document.getElementById("out-canvas");
+            const loader = document.getElementById("loader");
+            const placeholder = document.getElementById("placeholder-ui");
+            const status = document.getElementById("status-bar");
+
+            if (!promptInput.value.trim()) return;
+
+            btn.disabled = true;
+            loader.classList.remove("hidden");
+            status.innerHTML = "STATUS: DOWNLOADING_LATENTS...<br>V-RES: BUSY";
+            
+            const logs = ['log-2', 'log-3'];
+            logs.forEach(id => document.getElementById(id).classList.add('opacity-0'));
+            
+            for(let logId of logs) {
+                await new Promise(r => setTimeout(r, 600));
+                document.getElementById(logId).classList.remove('opacity-0');
+            }
+
+            const ctx = canvas.getContext('2d');
+            generateNeuroDepiction(promptInput.value, ctx);
+            
+            setTimeout(() => {
+                canvas.classList.remove("hidden");
+                placeholder.classList.add("hidden");
+                btn.disabled = false;
+                loader.classList.add("hidden");
+                status.innerHTML = "STATUS: SYNC_COMPLETE<br>V-RES: 256px_PIXELATED";
+            }, 400);
+        }
+    </script>
+</body>
+</html>
